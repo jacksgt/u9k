@@ -1,40 +1,91 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TODO">
     <title>U9K - Link Shortener</title>
-  </head>
-  <body>
-    <div id="input-wrapper">
-      Enter your URL and hit Enter:
-      <form name="linkForm" id="link-form">
-        <input type="url" name="url" autofocus="true" required="true" placeholder="http://...">
-      </form>
+    <link rel="stylesheet" href="/static/css/pure-min.css">
+    <link rel="stylesheet" href="/static/css/grids-responsive-min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+        <a class="pure-menu-heading" href="">U9K</a>
+
+        <ul class="pure-menu-list">
+            <!-- <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">Home</a></li> -->
+            <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Tour</a></li> -->
+            <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sign Up</a></li> -->
+        </ul>
     </div>
-  </body>
-  <script>
-    const linkForm = document.querySelector('#link-form');
-    linkForm.addEventListener('submit', (event) => {
-        // disable default action
-        event.preventDefault();
+</div>
 
-        // configure a request
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/link/');
+<div class="content-wrapper">
 
-        // prepare form data
-        let data = new FormData(linkForm);
+    <div class="content">
+        <h2 class="content-head is-center">Shorten a Link</h2>
 
-        // set headers
-        // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        <div class="pure-g">
 
-        // send request
-        xhr.send(data);
+          <form class="pure-form" id="link-form">
+            <fieldset>
+              <!-- <legend>Paste your URL and hit Enter!</legend> -->
+              <input type="url" name="url" placeholder="https://..." required="true"/>
+              <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
+            </fieldset>
+          </form>
 
-        // listen for `load` event
-        xhr.onload = () => {
-            console.log(xhr.responseText);
-        }
-    });
-  </script>
+        </div>
+
+    </div>
+
+    <div class="footer l-box is-center">
+        <!-- View the source of this layout to learn more. Made with love by the Pure Team. -->
+    </div>
+
+</div>
+
+</body>
+<script>
+  const linkForm = document.querySelector('#link-form');
+  linkForm.addEventListener('submit', (event) => {
+      // disable default action
+      event.preventDefault();
+
+      // configure a request
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/link/');
+
+      // prepare form data
+      let data = new FormData(linkForm);
+
+      // set headers
+      // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+
+      // set up event handlers
+      xhr.addEventListener("progress", () => {});
+      xhr.addEventListener("load", () => {
+          console.log(xhr.responseText);
+          // change button style and text
+          const button = linkForm.submit;
+          button.classList.add('pure-button-green');
+          button.value = "Done!";
+          // update with new URL
+          linkForm.url.value = xhr.responseText;
+      });
+      xhr.addEventListener("error", () => {
+          console.log("ERROR:", JSON.stringify(xhr));
+          // change button style and text
+          const button = linkForm.submit;
+          button.classList.add('pure-button-orange');
+          button.value = "Oops, there was an error!";
+      });
+
+      // send request
+      xhr.send(data);
+  });
+</script>
 </html>
