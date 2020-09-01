@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"fmt"
 	"net/http"
 	"u9k/types"
@@ -14,17 +15,18 @@ const baseUrl = "http://localhost:3000/"
 
 func GetWelcome(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Welcome"))
+	log.Printf("")
 }
 
 func PostLinkHandler(w http.ResponseWriter, r *http.Request) {
-	url := r.FormValue("url")
+	url := r.PostFormValue("url")
 	if url == "" {
-		httpError(w, "Missing field 'data' in request", 400)
+		httpError(w, "Missing field 'url' in request", 400)
 		return
 	}
 
 	link := new(types.Link)
-	link.Url = r.FormValue("url")
+	link.Url = url
 	link.Id = db.GenerateLinkId()
 
 	id := db.StoreLink(link)

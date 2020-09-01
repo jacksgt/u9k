@@ -12,9 +12,16 @@ import (
 func initHttpServer() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Get("/welcome", api.GetWelcome)
+
+	staticFS := http.FileServer(http.Dir("./static/"))
+	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		http.StripPrefix("/static", staticFS).ServeHTTP(w, r)
+	})
 	r.Post("/link/", api.PostLinkHandler)
 	r.Get("/{linkId}", api.GetLinkHandler)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/index.html")
+	})
 	http.ListenAndServe(":3000", r)
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"math/rand"
-
+	"time"
 
 	"github.com/jackc/pgx/v4"
 
@@ -19,6 +19,8 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for rea
 const linkLength = 6
 
 func InitDBConnection(url string) {
+    rand.Seed(time.Now().UnixNano())
+
 	// set up connection configuration
 	config, err := pgx.ParseConfig(url)
 	if err != nil {
@@ -50,7 +52,7 @@ func StoreLink(link *types.Link) (string) {
 		link.Id,
 		link.Url,
 	); err != nil {
-		log.Fatal(err)
+		log.Printf("Failed to insert link: %s\n", err)
 		return ""
 	}
 

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>U9K - Link Shortener</title>
+  </head>
+  <body>
+    <div id="input-wrapper">
+      Enter your URL and hit Enter:
+      <form name="linkForm" id="link-form">
+        <input type="url" name="url" autofocus="true" required="true" placeholder="http://...">
+      </form>
+    </div>
+  </body>
+  <script>
+    const linkForm = document.querySelector('#link-form');
+    linkForm.addEventListener('submit', (event) => {
+        // disable default action
+        event.preventDefault();
+
+        // configure a request
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/link/');
+
+        // prepare form data
+        let data = new FormData(linkForm);
+
+        // set headers
+        // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+
+        // send request
+        xhr.send(data);
+
+        // listen for `load` event
+        xhr.onload = () => {
+            console.log(xhr.responseText);
+        }
+    });
+  </script>
+</html>
