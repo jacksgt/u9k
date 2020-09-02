@@ -1,25 +1,17 @@
 package api
 
 import (
-	"log"
 	"fmt"
 	"net/http"
 	"u9k/types"
 	"u9k/db"
 	"u9k/api/render"
+	"u9k/config"
 
 	"github.com/go-chi/chi"
 )
 
-const baseUrl = "http://localhost:3000/"
-
-
-func GetWelcome(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Welcome"))
-	log.Printf("")
-}
-
-func PostLinkHandler(w http.ResponseWriter, r *http.Request) {
+func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.PostFormValue("url")
 	if url == "" {
 		httpError(w, "Missing field 'url' in request", 400)
@@ -36,12 +28,13 @@ func PostLinkHandler(w http.ResponseWriter, r *http.Request) {
 	link.Id = db.GenerateLinkId()
 
 	id := db.StoreLink(link)
-
-	fmt.Fprintf(w, "%s%s\n", baseUrl, id)
+	if id != "" {
+		fmt.Fprintf(w, "%s%s\n", config.BaseUrl, id)
+	}
 	return
 }
 
-func GetLinkHandler(w http.ResponseWriter, r *http.Request) {
+func getLinkHandler(w http.ResponseWriter, r *http.Request) {
 	linkId := chi.URLParam(r, "linkId")
 	if linkId == "" {
 		httpError(w, "Not Found", 404)

@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 
 	"u9k/types"
+	"u9k/config"
 )
 
 // shared connection handler
@@ -18,17 +19,17 @@ var conn *pgx.Conn
 const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for readability
 const linkLength = 6
 
-func InitDBConnection(url string) {
+func InitDBConnection() {
     rand.Seed(time.Now().UnixNano())
 
 	// set up connection configuration
-	config, err := pgx.ParseConfig(url)
+	conf, err := pgx.ParseConfig(config.DbConnUrl)
 	if err != nil {
 		log.Fatal("error configuring the database: ", err)
 	}
 
 	// connect to the database
-	conn, err = pgx.ConnectConfig(context.Background(), config)
+	conn, err = pgx.ConnectConfig(context.Background(), conf)
 	if err != nil {
 		log.Fatal("error connecting to the database: ", err)
 	}
@@ -37,10 +38,10 @@ func InitDBConnection(url string) {
 	// check if connection is working
 	err = conn.Ping(context.Background())
 	if err != nil {
-		log.Fatal("Failed to communcate with database: ", url)
+		log.Fatal("Failed to communcate with database: ", config.DbConnUrl)
 	}
 
-	log.Printf("Connected to database %s\n", url)
+	log.Printf("Connected to database %s\n", config.DbConnUrl)
 }
 
 
