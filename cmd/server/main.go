@@ -17,6 +17,10 @@ func initHttpServer() {
 	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static", staticFS).ServeHTTP(w, r)
 	})
+	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		// to avoid lookups to the database which result in 404 anyway
+		return
+	})
 	r.Post("/link/", api.PostLinkHandler)
 	r.Get("/{linkId}", api.GetLinkHandler)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {

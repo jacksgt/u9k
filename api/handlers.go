@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"u9k/types"
 	"u9k/db"
+	"u9k/api/render"
 
 	"github.com/go-chi/chi"
 )
@@ -48,6 +49,6 @@ func GetLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%s\n", link.Url)
+	render.RedirectLink(w, r, link.Url)
 	return
 }

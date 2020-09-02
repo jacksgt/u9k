@@ -46,8 +46,6 @@ label {
     text-align: center;
 }
 
-
-
 /*
  * -- PURE FORM STYLES --
  * Style the form inputs and labels
@@ -63,11 +61,49 @@ label {
     box-shadow: none;
     font-size: 100%;
     width: 100%;
+    margin-top: 1em;
     margin-bottom: 1em;
 }
 
+.pure-form legend {
+    font-style: italic;
+}
+
+/* center-align the form */
 #link-form {
     margin: auto;
+}
+
+/* input tooltip */
+[data-tip] {
+    position: relative;
+}
+[data-tip]::before {
+    display: none;
+}
+[data-tip].show::before {
+    display: block;
+    content: attr(data-tip);
+    right: 5px;
+    padding: .5em .6em;
+    box-sizing: border-box;
+    background: #1a1a1a;
+    color: #fff;
+    z-index: 9;
+    font-size: 0.75em;
+    /* height: 80%; */
+    line-height: 18px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    white-space: nowrap;
+    word-wrap: normal;
+    /* vertical center */
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 /*
@@ -186,18 +222,21 @@ p/* This is the subheading that appears on the blue section */
  */
 .content-wrapper {
     /* These styles are required for the "scroll-over" effect */
-    position: absolute;
+    /* position: absolute; */
     /* top: 87%; */
     width: 100%;
     min-height: 12%;
     z-index: 2;
-    background: white;
+    background: #f7f7f7;
+    margin-top: 3em;
 
 }
 
 /* We want to give the content area some more padding */
 .content {
     padding: 1em 1em 3em;
+    max-width: 700px;
+    margin: auto;
 }
 
 /* This is the class used for the main content headers (<h2>) */

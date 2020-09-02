@@ -25,15 +25,17 @@
 
 <div class="content-wrapper">
 
-    <div class="content">
-        <h2 class="content-head is-center">Shorten a Link</h2>
+  <div class="content">
+        <h2 class="is-center">Shorten a Link</h2>
 
         <div class="pure-g">
 
-          <form class="pure-form" id="link-form">
+          <form class="pure-form pure-u-1" id="link-form">
             <fieldset>
-              <!-- <legend>Paste your URL and hit Enter!</legend> -->
-              <input type="url" name="url" placeholder="https://..." required="true"/>
+              <legend name="legend">Paste your URL and hit Enter!</legend>
+              <div data-tip="Copied to Clipboard!">
+                <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
+              </div>
               <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
             </fieldset>
           </form>
@@ -50,6 +52,16 @@
 
 </body>
 <script>
+  function selectAndCopy(element) {
+      element.select(); // select (highlight) text
+      document.execCommand('copy'); // copy to clipboard
+      const tooltip = element.parentElement;
+      tooltip.classList.toggle("show"); // show tooltip
+      setTimeout(function(){ // hide tooltip after 5 seconds
+          tooltip.classList.toggle("show");
+      }, 5000);
+  }
+
   const linkForm = document.querySelector('#link-form');
   linkForm.addEventListener('submit', (event) => {
       // disable default action
@@ -70,11 +82,15 @@
       xhr.addEventListener("load", () => {
           console.log(xhr.responseText);
           // change button style and text
+          linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
           const button = linkForm.submit;
           button.classList.add('pure-button-green');
           button.value = "Done!";
           // update with new URL
-          linkForm.url.value = xhr.responseText;
+          const field = linkForm.url;
+          field.value = xhr.responseText;
+          field.readOnly = true;
+          selectAndCopy(field);
       });
       xhr.addEventListener("error", () => {
           console.log("ERROR:", JSON.stringify(xhr));
