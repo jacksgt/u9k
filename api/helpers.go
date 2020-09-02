@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"net/http"
+	"net/url"
 )
 
 // same interface as http.Error()
@@ -27,4 +28,10 @@ func httpError(w http.ResponseWriter, message string, code int){
 	w.WriteHeader(code)
 	fmt.Fprintf(w, "%d - %s\n", code, message)
 	return
+}
+
+// adapted from https://stackoverflow.com/a/55551215
+func isValidUrl(str string) (bool) {
+	u, err := url.ParseRequestURI(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }

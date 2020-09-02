@@ -26,6 +26,11 @@ func PostLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ! isValidUrl(url) {
+		httpError(w, "Data in 'url' field is not a valid URL", 400)
+		return
+	}
+
 	link := new(types.Link)
 	link.Url = url
 	link.Id = db.GenerateLinkId()

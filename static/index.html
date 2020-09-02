@@ -81,19 +81,34 @@
       xhr.addEventListener("progress", () => {});
       xhr.addEventListener("load", () => {
           console.log(xhr.responseText);
-          // change button style and text
-          linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
-          const button = linkForm.submit;
-          button.classList.add('pure-button-green');
-          button.value = "Done!";
-          // update with new URL
-          const field = linkForm.url;
-          field.value = xhr.responseText;
-          field.readOnly = true;
-          selectAndCopy(field);
+          if (xhr.readyState == 4) {
+              switch (xhr.status) {
+              case 200:
+                  // change button style and text
+                  linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
+                  var button = linkForm.submit;
+                  button.classList.add('pure-button-green');
+                  button.value = "Done!";
+                  // update with new URL
+                  const field = linkForm.url;
+                  field.value = xhr.responseText;
+                  field.readOnly = true;
+                  selectAndCopy(field);
+                  break;
+
+              default:
+                  console.log("ERROR:", xhr);
+                  // change button style and text
+                  var button = linkForm.submit;
+                  button.classList.add('pure-button-orange');
+                  button.value = "Try again ...";
+                  linkForm.querySelector("legend").innerHTML = xhr.responseText;
+                  break;
+              }
+          }
       });
       xhr.addEventListener("error", () => {
-          console.log("ERROR:", JSON.stringify(xhr));
+          console.log("ERROR:", xhr);
           // change button style and text
           const button = linkForm.submit;
           button.classList.add('pure-button-orange');
