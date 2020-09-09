@@ -37,9 +37,12 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	link.Id = shortLink
 	id := db.StoreLink(link)
-	if id != "" {
-		fmt.Fprintf(w, "%s%s\n", config.BaseUrl, id)
+	if id == "" {
+		httpError(w, "Internal Server Error", 500)
+		return
 	}
+
+	fmt.Fprintf(w, "%s%s\n", config.BaseUrl, id)
 	return
 }
 

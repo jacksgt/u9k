@@ -21,6 +21,7 @@ func applyMigrations(dbUrl string) error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 	driver, err := cockroachdb.WithInstance(db, new(cockroachdb.Config))
 	if err != nil {
 		return err
@@ -40,7 +41,6 @@ func applyMigrations(dbUrl string) error {
 	} else {
 		printMigrationVersion(m)
 	}
-
 
 	source_err, db_err := m.Close()
 	if source_err != nil {

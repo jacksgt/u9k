@@ -52,13 +52,13 @@ func InitDBConnection() {
 
 
 func StoreLink(link *types.Link) (string) {
-	log.Printf("Storing Link: %s\n", link.Url)
-
 	_, err := conn.Exec(context.Background(),
 		"INSERT INTO links (id, url) VALUES ($1, $2)", // TODO: RETURNING id
 		link.Id,
 		link.Url,
 	)
+	// TODO: ideally this should differentiate between generic errors
+	// and duplicate key errors
 	if err != nil {
 		log.Printf("Failed to insert link: %s\n", err)
 		return ""
