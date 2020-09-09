@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 version="$1"
 
 git tag "$version"

@@ -25,8 +25,17 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	link := new(types.Link)
 	link.Url = url
-	link.Id = db.GenerateLinkId()
+	shortLink := r.PostFormValue("link")
+	if shortLink != "" {
+		if ! isValidLinkId(shortLink) {
+			httpError(w, "Some characters in 'link' field are not allowed", 400)
+			return
+		}
+	} else {
+		shortLink = db.GenerateLinkId()
+	}
 
+	link.Id = shortLink
 	id := db.StoreLink(link)
 	if id != "" {
 		fmt.Fprintf(w, "%s%s\n", config.BaseUrl, id)

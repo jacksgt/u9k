@@ -1,11 +1,14 @@
 package api
 
 import (
+	"log"
 	"fmt"
-
+	"regexp"
 	"net/http"
 	"net/url"
 )
+
+const validLinkRegex = "[a-zA-Z0-9-_]{6,}"
 
 // same interface as http.Error()
 func httpError(w http.ResponseWriter, message string, code int){
@@ -34,4 +37,13 @@ func httpError(w http.ResponseWriter, message string, code int){
 func isValidUrl(str string) (bool) {
 	u, err := url.ParseRequestURI(str)
 	return err == nil && u.Scheme != "" && u.Host != ""
+}
+
+func isValidLinkId(str string) (bool) {
+    match, err := regexp.MatchString(validLinkRegex, str)
+	if err != nil {
+		log.Printf("Regex %s error: %s\n", err)
+	}
+	// in case of error, "match" is always "false"
+	return match
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Create a short, type-able link from a long URL">
+    <meta name="description" content="Create a short, typeable link from a long URL">
     <title>U9K - Link Shortener</title>
     <link rel="stylesheet" href="/static/css/pure-min.css">
     <link rel="stylesheet" href="/static/css/grids-responsive-min.css">
@@ -36,7 +36,15 @@
               <div data-tip="Copied to Clipboard!">
                 <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
               </div>
-              <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
+              Optionally, choose a custom short link:
+              <label for="link" style="display: flex;">
+                <span style="margin: auto;">https://u9k.de/</span>
+                <input style="width: 100%;" type="text" name="link" placeholder="e.g. awesome-food" title="Only letters of the alphabet (a-z, A-Z), digits (0-9) as well as '-' and '_'; at least 6 characters" pattern="[a-zA-Z0-9-_]{6,}">
+              </label>
+              <br>
+              <div style="text-align:center;">
+                <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
+              </div>
             </fieldset>
           </form>
 
