@@ -9,6 +9,9 @@ func Init() {
 	if baseUrl == "" {
 		baseUrl = "http://localhost:3000/"
 	}
+    if baseUrl[len(baseUrl)-1] != '/' {
+        baseUrl += "/"
+    }
 	BaseUrl = baseUrl
 
 	listenAddr := os.Getenv("LISTEN_ADDR")

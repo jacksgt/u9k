@@ -42,6 +42,12 @@ func InitDBConnection() {
 	}
 
 	log.Printf("Connected to database %s\n", config.DbConnUrl)
+
+	// run migrations
+	err = applyMigrations(config.DbConnUrl)
+	if err != nil {
+		log.Fatalf("Failed to apply database migrations: %s\n", err)
+	}
 }
 
 

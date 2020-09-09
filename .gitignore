@@ -1,0 +1,3 @@
+cockroach-data/
+cockroach.sh
+!migrations/*.sql
