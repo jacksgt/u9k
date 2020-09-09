@@ -54,11 +54,12 @@ func InitDBConnection() {
 func StoreLink(link *types.Link) (string) {
 	log.Printf("Storing Link: %s\n", link.Url)
 
-	if _, err := conn.Exec(context.Background(),
+	_, err := conn.Exec(context.Background(),
 		"INSERT INTO links (id, url) VALUES ($1, $2)", // TODO: RETURNING id
 		link.Id,
 		link.Url,
-	); err != nil {
+	)
+	if err != nil {
 		log.Printf("Failed to insert link: %s\n", err)
 		return ""
 	}
@@ -67,19 +68,32 @@ func StoreLink(link *types.Link) (string) {
 }
 
 func GetLink(id string) *types.Link {
+	link := new(types.Link)
 	res := conn.QueryRow(context.Background(),
-		"SELECT id, url, create_ts FROM links WHERE id = $1",
+		"SELECT id, url, create_ts, counter FROM links WHERE id = $1",
 		id,
 	)
-
-	link := new(types.Link)
-	err := res.Scan(&link.Id, &link.Url, &link.CreateTimestamp)
+	err := res.Scan(&link.Id, &link.Url, &link.CreateTimestamp, &link.Counter)
 	if err != nil {
 		log.Printf("Failed to retrieve link %s: %s\n", id, err)
 		return nil
 	}
 
 	return link
+}
+
+func IncrementLinkCounter(id string) {
+	_, err := conn.Exec(context.Background(),
+		"UPDATE links SET counter = counter + 1 WHERE id = $1", // TODO: RETURNING counter
+		id,
+	)
+
+	if err != nil {
+		log.Printf("Failed to increment link counter: %s\n", err)
+		return
+	}
+
+	return // TODO: RETURNING counter
 }
 
 func GenerateLinkId() (id string) {

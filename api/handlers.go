@@ -56,6 +56,8 @@ func getLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db.IncrementLinkCounter(linkId)
+
 	render.RedirectLink(w, r, link.Url)
 	return
 }

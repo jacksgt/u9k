@@ -1,0 +1,1 @@
+ALTER TABLE u9k.links ADD COLUMN counter INT8 DEFAULT (INT '0');

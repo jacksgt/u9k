@@ -8,4 +8,5 @@ type Link struct {
 	Id string
     Url string
     CreateTimestamp time.Time
+	Counter int64
 }
