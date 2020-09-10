@@ -1,14 +1,15 @@
 package api
 
 import (
-	"u9k/config"
-
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/httprate"
+
+	"u9k/config"
 )
 
 func Init() {
@@ -24,11 +25,12 @@ func Init() {
 		return
 	})
 
-	r.Group(func (r chi.Router) {
+	r.Group(func(r chi.Router) {
 		// limit endpoints in this group to one request per second
 		r.Use(httprate.Limit(1, 1*time.Second))
 		r.Post("/link/", postLinkHandler)
 	})
+	r.Get("/link/{linkId}", previewLinkHandler)
 	r.Get("/{linkId}", getLinkHandler)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")

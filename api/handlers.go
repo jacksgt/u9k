@@ -63,3 +63,20 @@ func getLinkHandler(w http.ResponseWriter, r *http.Request) {
 	render.RedirectLink(w, r, link.Url)
 	return
 }
+
+func previewLinkHandler(w http.ResponseWriter, r *http.Request) {
+	linkId := chi.URLParam(r, "linkId")
+	if linkId == "" {
+		httpError(w, "Not Found", 404)
+		return
+	}
+
+	link := db.GetLink(linkId)
+	if link == nil {
+		httpError(w, "Not Found", 404)
+		return
+	}
+
+	render.RedirectLinkPage(w, r, link)
+	return
+}
