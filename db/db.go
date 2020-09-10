@@ -2,14 +2,15 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/jackc/pgx/v4"
 
-	"u9k/types"
 	"u9k/config"
+	"u9k/types"
 )
 
 // shared connection handler
@@ -19,8 +20,8 @@ var conn *pgx.Conn
 const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for readability
 const linkLength = 6
 
-func InitDBConnection() {
-    rand.Seed(time.Now().UnixNano())
+func InitDBConnection(forceVersion int) {
+	rand.Seed(time.Now().UnixNano())
 
 	// set up connection configuration
 	conf, err := pgx.ParseConfig(config.DbConnUrl)
@@ -44,7 +45,8 @@ func InitDBConnection() {
 	log.Printf("Connected to database %s\n", config.DbConnUrl)
 
 	// run migrations
-	err = applyMigrations(config.DbConnUrl)
+	fmt.Printf("FORCE %d\n", forceVersion)
+	err = applyMigrations(config.DbConnUrl, forceVersion)
 	if err != nil {
 		log.Fatalf("Failed to apply database migrations: %s\n", err)
 	}
