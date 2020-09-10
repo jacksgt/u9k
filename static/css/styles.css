@@ -69,7 +69,15 @@ label {
     font-style: italic;
 }
 
-/* center-align the form */
+.pure-form .form-qr-code {
+    display: none;
+    padding: 2em;
+}
+
+.pure-form .form-qr-code img {
+    margin: auto;
+}
+
 #link-form {
     margin: auto;
 }
@@ -271,6 +279,10 @@ p/* This is the subheading that appears on the blue section */
     position: fixed;
     bottom: 0;
     width: 100%;
+}
+
+.footer a {
+    color: white;
 }
 
 /*

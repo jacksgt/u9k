@@ -32,18 +32,24 @@
 
           <form class="pure-form pure-u-1" id="link-form">
             <fieldset>
-              <legend name="legend">Paste your URL and hit Enter!</legend>
-              <div data-tip="Copied to Clipboard!">
-                <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
+              <div class="mandatory-form-part">
+                <legend name="legend">Paste your URL and hit Enter!</legend>
+                <div data-tip="Copied to Clipboard!">
+                  <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
+                </div>
               </div>
-              Optionally, choose a custom short link:
-              <label for="link" style="display: flex;">
-                <span style="margin: auto;">https://u9k.de/</span>
-                <input style="width: 100%;" type="text" name="link" placeholder="e.g. awesome-food" title="Only letters of the alphabet (a-z, A-Z), digits (0-9) as well as '-' and '_'; at least 6 characters" pattern="[a-zA-Z0-9-_]{6,}">
-              </label>
-              <br>
-              <div style="text-align:center;">
-                <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
+              <div class="optional-form-part">
+                Optionally, choose a custom short link:
+                <label for="link" style="display: flex;">
+                  <span style="margin: auto;">https://u9k.de/</span>
+                  <input style="width: 100%;" type="text" name="link" placeholder="e.g. awesome-food" title="Only letters of the alphabet (a-z, A-Z), digits (0-9) as well as '-' and '_'; at least 6 characters" pattern="[a-zA-Z0-9-_]{6,}">
+                </label>
+                <br>
+                <div style="text-align:center;">
+                  <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
+                </div>
+              </div>
+              <div class="form-qr-code">
               </div>
             </fieldset>
           </form>
@@ -52,13 +58,14 @@
 
     </div>
 
-    <div class="footer l-box is-center">
-        <!-- View the source of this layout to learn more. Made with love by the Pure Team. -->
+  <div class="footer l-box is-center">
+    u9k.de is developed and hosted by <a href="https://blog.cubieserver.de/">Jack Henschel</a>.
     </div>
 
 </div>
 
 </body>
+<script src="/static/js/qrcode.min.js" async="true"></script>
 <script>
   function selectAndCopy(element) {
       element.select(); // select (highlight) text
@@ -68,6 +75,30 @@
       setTimeout(function(){ // hide tooltip after 5 seconds
           tooltip.classList.toggle("show");
       }, 5000);
+  }
+
+  function showQrCode(element, data) {
+      if (! element) {
+          console.log("showQrCode: Element is not defined. Skipping.")
+          return
+      }
+      if (! window.QRCode) {
+          console.log("showQrCode: QRCode library not found. Skipping.")
+          return
+      }
+
+      var qrcode = new QRCode(element, {
+	      text: data,
+	      // width: 128,
+	      // height: 128,
+	      // colorDark : "#000000",
+	      // colorLight : "#ffffff",
+	      // correctLevel : QRCode.CorrectLevel.H
+      });
+
+      setTimeout(function(){ // small delay until QR code is ready
+          element.style.display = "block";
+      }, 100);
   }
 
   const linkForm = document.querySelector('#link-form');
@@ -92,6 +123,7 @@
           if (xhr.readyState == 4) {
               switch (xhr.status) {
               case 200:
+                  const link = xhr.responseText;
                   // change button style and text
                   linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
                   var button = linkForm.submit;
@@ -99,9 +131,12 @@
                   button.value = "Done!";
                   // update with new URL
                   const field = linkForm.url;
-                  field.value = xhr.responseText;
+                  field.value = link;
                   field.readOnly = true;
                   selectAndCopy(field);
+                  // hide optional form part (input and submit)
+                  linkForm.querySelector(".optional-form-part").style.display = "none";
+                  showQrCode(linkForm.querySelector(".form-qr-code"), link)
                   break;
 
               default:
