@@ -16,10 +16,6 @@ import (
 // shared connection handler
 var conn *pgx.Conn
 
-// configuration
-const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for readability
-const linkLength = 6
-
 func InitDBConnection(forceVersion int) {
 	rand.Seed(time.Now().UnixNano())
 
@@ -52,13 +48,21 @@ func InitDBConnection(forceVersion int) {
 	}
 }
 
+func StoreLink(link *types.Link) string {
+	var err error
+	if link.Id != "" {
+		err = conn.QueryRow(context.Background(),
+			"INSERT INTO links (id, url) VALUES ($1, $2) RETURNING id",
+			link.Id,
+			link.Url,
+		).Scan(&link.Id)
+	} else {
+		err = conn.QueryRow(context.Background(),
+			"INSERT INTO links (url) VALUES ($1) RETURNING id",
+			link.Url,
+		).Scan(&link.Id)
+	}
 
-func StoreLink(link *types.Link) (string) {
-	_, err := conn.Exec(context.Background(),
-		"INSERT INTO links (id, url) VALUES ($1, $2)", // TODO: RETURNING id
-		link.Id,
-		link.Url,
-	)
 	// TODO: ideally this should differentiate between generic errors
 	// and duplicate key errors
 	if err != nil {
@@ -66,16 +70,15 @@ func StoreLink(link *types.Link) (string) {
 		return ""
 	}
 
-	return link.Id // TODO: RETURNING id
+	return link.Id
 }
 
 func GetLink(id string) *types.Link {
 	link := new(types.Link)
-	res := conn.QueryRow(context.Background(),
+	err := conn.QueryRow(context.Background(),
 		"SELECT id, url, create_ts, counter FROM links WHERE id = $1",
 		id,
-	)
-	err := res.Scan(&link.Id, &link.Url, &link.CreateTimestamp, &link.Counter)
+	).Scan(&link.Id, &link.Url, &link.CreateTimestamp, &link.Counter)
 	if err != nil {
 		log.Printf("Failed to retrieve link %s: %s\n", id, err)
 		return nil
@@ -84,29 +87,27 @@ func GetLink(id string) *types.Link {
 	return link
 }
 
-func IncrementLinkCounter(id string) {
-	_, err := conn.Exec(context.Background(),
-		"UPDATE links SET counter = counter + 1 WHERE id = $1", // TODO: RETURNING counter
+func IncrementLinkCounter(id string) int64 {
+	var counter int64
+	err := conn.QueryRow(context.Background(),
+		"UPDATE links SET counter = counter + 1 WHERE id = $1 RETURNING counter",
 		id,
-	)
+	).Scan(&counter)
 
 	if err != nil {
 		log.Printf("Failed to increment link counter: %s\n", err)
-		return
+		return counter
 	}
 
-	return // TODO: RETURNING counter
-}
-
-func GenerateLinkId() (id string) {
-	return randStringBytesRmndr(linkLength)
+	return counter
 }
 
 // from https://stackoverflow.com/a/31832326
+const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for readability
 func randStringBytesRmndr(n int) string {
-    b := make([]byte, n)
-    for i := range b {
-        b[i] = letterBytes[rand.Int63() % int64(len(letterBytes))]
-    }
-    return string(b)
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
+	return string(b)
 }

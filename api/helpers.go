@@ -1,17 +1,17 @@
 package api
 
 import (
-	"log"
 	"fmt"
-	"regexp"
+	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 )
 
 const validLinkRegex = "[a-zA-Z0-9-_]{6,}"
 
 // same interface as http.Error()
-func httpError(w http.ResponseWriter, message string, code int){
+func httpError(w http.ResponseWriter, message string, code int) {
 	// Display the the footer ("Contact admin etc.") only when theres a server error
 	// footer := "none"
 	// if code >= 500 {
@@ -34,13 +34,13 @@ func httpError(w http.ResponseWriter, message string, code int){
 }
 
 // adapted from https://stackoverflow.com/a/55551215
-func isValidUrl(str string) (bool) {
+func isValidUrl(str string) bool {
 	u, err := url.ParseRequestURI(str)
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
-func isValidLinkId(str string) (bool) {
-    match, err := regexp.MatchString(validLinkRegex, str)
+func isValidLinkId(str string) bool {
+	match, err := regexp.MatchString(validLinkRegex, str)
 	if err != nil {
 		log.Printf("Regex %s error: %s\n", err)
 	}

@@ -3,10 +3,11 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"u9k/types"
-	"u9k/db"
+
 	"u9k/api/render"
 	"u9k/config"
+	"u9k/db"
+	"u9k/types"
 
 	"github.com/go-chi/chi"
 )
@@ -18,7 +19,7 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ! isValidUrl(url) {
+	if !isValidUrl(url) {
 		httpError(w, "Data in 'url' field is not a valid URL", 400)
 		return
 	}
@@ -27,15 +28,13 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 	link.Url = url
 	shortLink := r.PostFormValue("link")
 	if shortLink != "" {
-		if ! isValidLinkId(shortLink) {
+		if !isValidLinkId(shortLink) {
 			httpError(w, "Some characters in 'link' field are not allowed", 400)
 			return
 		}
-	} else {
-		shortLink = db.GenerateLinkId()
+		link.Id = shortLink
 	}
 
-	link.Id = shortLink
 	id := db.StoreLink(link)
 	if id == "" {
 		httpError(w, "Internal Server Error", 500)
