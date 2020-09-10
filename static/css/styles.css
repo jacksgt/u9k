@@ -22,7 +22,7 @@ h4,
 h5,
 h6,
 label {
-    color: #34495e;
+    color: #4b6584;
 }
 
 .pure-img-responsive {
@@ -52,7 +52,7 @@ label {
  * Style the form inputs and labels
  */
 .pure-form label {
-    margin: 1em 0 0;
+    margin: 0;
     font-weight: bold;
     font-size: 100%;
 }
@@ -67,6 +67,8 @@ label {
 
 .pure-form legend {
     font-style: italic;
+    padding: 0;
+    margin: 0;
 }
 
 .pure-form .form-qr-code {
@@ -119,19 +121,19 @@ label {
  * I want my pure-button elements to look a little different
  */
 .pure-button {
-    background-color: #1f8dd6;
+    background-color: #2d98da;
     color: white;
     padding: 0.5em 2em;
     border-radius: 5px;
 }
 
-.pure-button-orange {
-    background: orange;
+.pure-button-warning {
+    background: #fa8231;
     font-size: 120%;
 }
 
-.pure-button-green {
-    background: green;
+.pure-button-ok {
+    background: #20bf6b;
     font-size: 120%;
 }
 
@@ -145,10 +147,9 @@ label {
     padding: 0.5em;
     text-align: center;
     box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
+    background: #4b6584;
 }
-.home-menu {
-    background: #2d3e50;
-}
+
 .pure-menu.pure-menu-fixed {
     /* Fixed menus normally have a border at the bottom. */
     border-bottom: none;
