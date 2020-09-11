@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -41,36 +40,35 @@ func InitDBConnection(forceVersion int) {
 	log.Printf("Connected to database %s\n", config.DbConnUrl)
 
 	// run migrations
-	fmt.Printf("FORCE %d\n", forceVersion)
 	err = applyMigrations(config.DbConnUrl, forceVersion)
 	if err != nil {
 		log.Fatalf("Failed to apply database migrations: %s\n", err)
 	}
 }
 
-func StoreLink(link *types.Link) string {
+func StoreLink(link *types.Link) error {
 	var err error
 	if link.Id != "" {
 		err = conn.QueryRow(context.Background(),
-			"INSERT INTO links (id, url) VALUES ($1, $2) RETURNING id",
+			"INSERT INTO links (id, url) VALUES ($1, $2) RETURNING id, create_ts",
 			link.Id,
 			link.Url,
-		).Scan(&link.Id)
+		).Scan(&link.Id, &link.CreateTimestamp)
 	} else {
 		err = conn.QueryRow(context.Background(),
-			"INSERT INTO links (url) VALUES ($1) RETURNING id",
+			"INSERT INTO links (url) VALUES ($1) RETURNING id, create_ts",
 			link.Url,
-		).Scan(&link.Id)
+		).Scan(&link.Id, &link.CreateTimestamp)
 	}
 
 	// TODO: ideally this should differentiate between generic errors
 	// and duplicate key errors
 	if err != nil {
 		log.Printf("Failed to insert link: %s\n", err)
-		return ""
+		return err
 	}
 
-	return link.Id
+	return nil
 }
 
 func GetLink(id string) *types.Link {

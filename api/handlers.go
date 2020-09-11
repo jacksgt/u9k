@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"u9k/api/render"
-	"u9k/config"
 	"u9k/db"
 	"u9k/types"
 
@@ -35,13 +34,19 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 		link.Id = shortLink
 	}
 
-	id := db.StoreLink(link)
-	if id == "" {
+	err := db.StoreLink(link)
+	if err != nil {
 		httpError(w, "Internal Server Error", 500)
 		return
 	}
 
-	fmt.Fprintf(w, "%s%s\n", config.BaseUrl, id)
+	str, err := link.ExportToJson()
+	if err != nil {
+		httpError(w, "Internal Server Error", 500)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	fmt.Fprintf(w, "%s\n", str)
 	return
 }
 
