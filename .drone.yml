@@ -1,0 +1,13 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: Push to GitHub
+  image: appleboy/drone-git-push
+  settings:
+    branch: master
+    remote: git@github.com:jacksgt/u9k.git
+    followtags: true
+    ssh_key:
+      from_secret: github_private_key
