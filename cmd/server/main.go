@@ -6,6 +6,7 @@ import (
 	"u9k/api"
 	"u9k/config"
 	"u9k/db"
+	"u9k/storage"
 )
 
 func main() {
@@ -14,5 +15,6 @@ func main() {
 	flag.Parse()
 	config.Init()
 	db.InitDBConnection(*forceMigrationVersion)
+	storage.Init()
 	api.Init()
 }
