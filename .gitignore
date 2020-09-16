@@ -1,4 +1,6 @@
-cockroach.sh
+*.sh
 !migrations/*.sql
 server
+main
 vendor/
+

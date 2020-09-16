@@ -35,21 +35,24 @@ func InitDBConnection(forceVersion int) {
 	}
 	//defer pool.Close(context.Background())
 
-	// check if connection is working
+	// get a single connection from the pool
 	conn, err := pool.Acquire(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to communcate with database: %s\n", err)
 	}
+	defer conn.Release()
+
+	// check if connection is working
 	err = conn.Conn().Ping(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to ping database: %s\n", config.DbConnUrl)
 	}
-	conn.Release()
 
 	log.Printf("Connected to database %s\n", config.DbConnUrl)
 
 	// run migrations
-	err = applyMigrations(config.DbConnUrl, forceVersion)
+	//	err = applyMigrations(config.DbConnUrl, forceVersion)
+	err = applyMigrations(conn.Conn(), forceVersion)
 	if err != nil {
 		log.Fatalf("Failed to apply database migrations: %s\n", err)
 	}

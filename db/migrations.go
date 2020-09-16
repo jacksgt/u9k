@@ -1,28 +1,16 @@
 package db
 
 import (
-	"database/sql"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/cockroachdb"
-	_ "github.com/jackc/pgx/stdlib"
-
-	// TODO: migrate/cockroachdb pulls in the lib/pq driver, instead of re-using the
-	// pgx driver. Rewrite this to natively use pgx driver
-	//https://github.com/golang-migrate/migrate/blob/master/database/cockroachdb/cockroachdb.go
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v4"
+
+	"u9k/db/migrate/cockroachdb"
 )
 
-const migrationVersion = 1
-
-func applyMigrations(dbUrl string, forceVersion int) error {
-	db, err := sql.Open("pgx", dbUrl)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
+func applyMigrations(db *pgx.Conn, forceVersion int) error {
 	driver, err := cockroachdb.WithInstance(db, new(cockroachdb.Config))
 	if err != nil {
 		return err
