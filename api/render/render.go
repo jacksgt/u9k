@@ -11,7 +11,6 @@ import (
 func RedirectLinkPage(w http.ResponseWriter, r *http.Request, link *types.Link) {
 	fmt.Fprintf(w, "The link %s%s points to %s<br>\n", config.BaseUrl, link.Id, link.Url)
 	fmt.Fprintf(w, "Created on %s, used %d times since then<br>\n", link.CreateTimestamp.Format("2006-01-02"), link.Counter)
-	return
 }
 
 func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
@@ -20,5 +19,9 @@ func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
 
 	// for text clients
 	fmt.Fprintf(w, "%s\n", url)
-	return
+}
+
+func PreviewFile(w http.ResponseWriter, r *http.Request, f *types.File) {
+	f.ExportToJson() // generate link
+	fmt.Fprintf(w, "Filename: %s<br>\n Link: %s?raw=true<br>\n Downloads: %d\n", f.Name, f.Link, f.Counter)
 }

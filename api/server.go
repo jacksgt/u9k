@@ -29,8 +29,10 @@ func Init() {
 		// limit endpoints in this group to one request per second
 		r.Use(httprate.Limit(1, 1*time.Second))
 		r.Post("/link/", postLinkHandler)
+		r.Post("/file/", postFileHandler)
 	})
 	r.Get("/link/{linkId}", previewLinkHandler)
+	r.Get("/file/{fileId}", getFileHandler)
 	r.Get("/{linkId}", getLinkHandler)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")

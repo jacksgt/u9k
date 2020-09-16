@@ -85,6 +85,35 @@ func GetLink(id string) *types.Link {
 	return link
 }
 
+func StoreFile(file *types.File) error {
+	err := conn.QueryRow(context.Background(),
+		"INSERT INTO files (filename, filetype) VALUES ($1, $2) RETURNING id, create_ts",
+		file.Name,
+		file.Type,
+	).Scan(&file.Id, &file.CreateTimestamp)
+
+	if err != nil {
+		log.Printf("Failed to insert file: %s\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func GetFile(id string) *types.File {
+	file := new(types.File)
+	err := conn.QueryRow(context.Background(),
+		"SELECT id, filename, filetype, create_ts, counter FROM files WHERE id = $1",
+		id,
+	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter)
+	if err != nil {
+		log.Printf("Failed to retrieve file %s from DB: %s\n", id, err)
+		return nil
+	}
+
+	return file
+}
+
 func IncrementLinkCounter(id string) int64 {
 	var counter int64
 	err := conn.QueryRow(context.Background(),
@@ -95,6 +124,30 @@ func IncrementLinkCounter(id string) int64 {
 	if err != nil {
 		log.Printf("Failed to increment link counter: %s\n", err)
 		return counter
+	}
+
+	return counter
+}
+
+func IncrementCounter(typ string, id string) int64 {
+	var query string
+	if typ == "link" {
+		query = "UPDATE links SET counter = counter + 1 WHERE id = $1 RETURNING counter"
+	} else if typ == "file" {
+		query = "UPDATE files SET counter = counter + 1 WHERE id = $1 RETURNING counter"
+	} else {
+		return 0
+	}
+
+	var counter int64
+	err := conn.QueryRow(context.Background(),
+		query,
+		id,
+	).Scan(&counter)
+
+	if err != nil {
+		log.Printf("Failed to increment %s counter %s: %s\n", typ, id, err)
+		return 0
 	}
 
 	return counter
