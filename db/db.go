@@ -6,36 +6,45 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 
 	"u9k/config"
 	"u9k/types"
 )
 
-// shared connection handler
-var conn *pgx.Conn
+// shared connection pool
+var pool *pgxpool.Pool
 
 func InitDBConnection(forceVersion int) {
 	rand.Seed(time.Now().UnixNano())
 
 	// set up connection configuration
-	conf, err := pgx.ParseConfig(config.DbConnUrl)
+	conf, err := pgxpool.ParseConfig(config.DbConnUrl)
 	if err != nil {
 		log.Fatal("error configuring the database: ", err)
 	}
 
 	// connect to the database
-	conn, err = pgx.ConnectConfig(context.Background(), conf)
+
+	// use "pgxpool.Connect()" instead of "pgx.Connect()" because the vanilla driver is not safe
+	// for concurrent connections (unlike the other Golang SQL drivers)
+	// https://github.com/jackc/pgx/wiki/Getting-started-with-pgx
+	pool, err = pgxpool.ConnectConfig(context.Background(), conf)
 	if err != nil {
 		log.Fatal("error connecting to the database: ", err)
 	}
-	//defer conn.Close(context.Background())
+	//defer pool.Close(context.Background())
 
 	// check if connection is working
-	err = conn.Ping(context.Background())
+	conn, err := pool.Acquire(context.Background())
 	if err != nil {
-		log.Fatal("Failed to communcate with database: ", config.DbConnUrl)
+		log.Fatalf("Failed to communcate with database: %s\n", err)
 	}
+	err = conn.Conn().Ping(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to ping database: %s\n", config.DbConnUrl)
+	}
+	conn.Release()
 
 	log.Printf("Connected to database %s\n", config.DbConnUrl)
 
@@ -49,13 +58,13 @@ func InitDBConnection(forceVersion int) {
 func StoreLink(link *types.Link) error {
 	var err error
 	if link.Id != "" {
-		err = conn.QueryRow(context.Background(),
+		err = pool.QueryRow(context.Background(),
 			"INSERT INTO links (id, url) VALUES ($1, $2) RETURNING id, create_ts",
 			link.Id,
 			link.Url,
 		).Scan(&link.Id, &link.CreateTimestamp)
 	} else {
-		err = conn.QueryRow(context.Background(),
+		err = pool.QueryRow(context.Background(),
 			"INSERT INTO links (url) VALUES ($1) RETURNING id, create_ts",
 			link.Url,
 		).Scan(&link.Id, &link.CreateTimestamp)
@@ -73,7 +82,7 @@ func StoreLink(link *types.Link) error {
 
 func GetLink(id string) *types.Link {
 	link := new(types.Link)
-	err := conn.QueryRow(context.Background(),
+	err := pool.QueryRow(context.Background(),
 		"SELECT id, url, create_ts, counter FROM links WHERE id = $1",
 		id,
 	).Scan(&link.Id, &link.Url, &link.CreateTimestamp, &link.Counter)
@@ -86,7 +95,7 @@ func GetLink(id string) *types.Link {
 }
 
 func StoreFile(file *types.File) error {
-	err := conn.QueryRow(context.Background(),
+	err := pool.QueryRow(context.Background(),
 		"INSERT INTO files (filename, filetype) VALUES ($1, $2) RETURNING id, create_ts",
 		file.Name,
 		file.Type,
@@ -102,7 +111,7 @@ func StoreFile(file *types.File) error {
 
 func GetFile(id string) *types.File {
 	file := new(types.File)
-	err := conn.QueryRow(context.Background(),
+	err := pool.QueryRow(context.Background(),
 		"SELECT id, filename, filetype, create_ts, counter FROM files WHERE id = $1",
 		id,
 	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter)
@@ -116,7 +125,7 @@ func GetFile(id string) *types.File {
 
 func IncrementLinkCounter(id string) int64 {
 	var counter int64
-	err := conn.QueryRow(context.Background(),
+	err := pool.QueryRow(context.Background(),
 		"UPDATE links SET counter = counter + 1 WHERE id = $1 RETURNING counter",
 		id,
 	).Scan(&counter)
@@ -140,7 +149,7 @@ func IncrementCounter(typ string, id string) int64 {
 	}
 
 	var counter int64
-	err := conn.QueryRow(context.Background(),
+	err := pool.QueryRow(context.Background(),
 		query,
 		id,
 	).Scan(&counter)
