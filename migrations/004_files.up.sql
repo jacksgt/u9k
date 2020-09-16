@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS u9k.files (
+CREATE TABLE IF NOT EXISTS files (
        id STRING PRIMARY KEY DEFAULT (translate(substr(encode(gen_random_uuid()::bytes, 'base64'), 1, 10), '/+', '-_')),
        filename STRING,
        filetype STRING,
