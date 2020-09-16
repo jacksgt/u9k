@@ -40,13 +40,8 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	str, err := link.ExportToJson()
-	if err != nil {
-		httpError(w, "Internal Server Error", 500)
-		return
-	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Fprintf(w, "%s\n", str)
+	fmt.Fprintf(w, "%s\n", link.ToJson())
 	return
 }
 

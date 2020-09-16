@@ -2,45 +2,70 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 
 	"u9k/config"
 )
 
+// BASE DEFINITIONS
+type BaseType interface {
+	// Id string
+	// Link string
+	// CreateTimestamp time.Time
+	// Counter int64
+
+	ExportLink() string
+	ToJson() string
+}
+
+type Base struct {
+	Id              string    `json:"-"` // omit from JSON
+	Link            string    `json:"link"`
+	CreateTimestamp time.Time `json:"create_ts"`
+	Counter         int64     `json:"counter"`
+}
+
+// LINK DEFINITIONS
 type Link struct {
-	Id              string    `json:"-"` // omit from JSON output
-	Link            string    `json:"link"`
-	Url             string    `json:"url"`
-	CreateTimestamp time.Time `json:"createTs"`
-	Counter         int64     `json:"counter"`
+	Base        // inherit from Base
+	Url  string `json:"url"`
 }
 
-func (l *Link) ExportToJson() (string, error) {
-	l.Link = fmt.Sprintf("%s%s", config.BaseUrl, l.Id)
-	return toJson(l)
+func (l *Link) ExportLink() string {
+	l.Link = config.BaseUrl + "/" + l.Id
+	return l.Link
 }
 
-type File struct {
-	Id              string    `json:"-"` // omit from JSON output
-	Link            string    `json:"link"`
-	Name            string    `json:"filename"`
-	Type            string    `json:"filetype"`
-	Size            int64     `json:"filesize"`
-	CreateTimestamp time.Time `json:"createTs"`
-	Counter         int64     `json:"counter"`
-}
-
-func (f *File) ExportToJson() (string, error) {
-	f.Link = fmt.Sprintf("%sfile/%s", config.BaseUrl, f.Id)
-	return toJson(f)
-}
-
-func toJson(s interface{}) (string, error) {
-	buf, err := json.Marshal(s)
+func (l *Link) ToJson() string {
+	l.ExportLink()
+	buf, err := json.Marshal(l)
 	if err != nil {
-		return "", err
+		log.Printf("Error generating JSON: %s\n", err)
+		return ""
 	}
+	return string(buf)
+}
 
-	return string(buf), nil
+// FILE DEFINITIONS
+type File struct {
+	Base        // inherit from Base
+	Name string `json:"filename"`
+	Type string `json:"filetype"`
+	Size int64  `json:"filesize"`
+}
+
+func (f *File) ExportLink() string {
+	f.Link = config.BaseUrl + "/file/" + f.Id
+	return f.Link
+}
+
+func (f *File) ToJson() string {
+	f.ExportLink()
+	buf, err := json.Marshal(f)
+	if err != nil {
+		log.Printf("Error generating JSON: %s\n", err)
+		return ""
+	}
+	return string(buf)
 }

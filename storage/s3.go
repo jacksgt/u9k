@@ -44,6 +44,9 @@ func Init() {
 }
 
 func StoreFileStream(fd io.ReadSeeker, key string, contentType string) error {
+	// make sure we go to the beginning of the file
+	fd.Seek(0, io.SeekStart)
+
 	_, err := s3.FileUpload(simples3.UploadInput{
 		Bucket:      config.S3Bucket,
 		ObjectKey:   key,

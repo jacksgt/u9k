@@ -10,8 +10,9 @@ func Init() {
 	if baseUrl == "" {
 		baseUrl = "http://localhost:3000/"
 	}
-	if baseUrl[len(baseUrl)-1] != '/' {
-		baseUrl += "/"
+	// trim trailing slash
+	if baseUrl[len(baseUrl)-1] == '/' {
+		baseUrl = baseUrl[:len(baseUrl)-2]
 	}
 	BaseUrl = baseUrl
 
