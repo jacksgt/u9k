@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Create a short, typeable link from a long URL">
@@ -15,95 +15,116 @@
     <link rel="stylesheet" href="/static/css/styles.css">
     <script defer src="/static/js/main.js"></script>
     <script defer src="/static/js/qrcode.min.js"></script> <!-- TODO: dynamically load this library when user focuses on link input form -->
-</head>
-<body>
+  </head>
+  <body>
 
-<div class="header">
-    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-      <a href="/" title="U9K Homepage">
-        <img src="/static/icons/favicon-180x180.png" alt="U9K Logo" style="height: 3em; vertical-align: middle;">
-      </a>
+    <div class="header">
+      <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+        <a href="/" title="U9K Homepage"><img src="/static/icons/favicon-180x180.png" alt="U9K Logo" style="height: 3em; vertical-align: middle;"></a>
 
         <ul class="pure-menu-list">
-            <!-- <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">Home</a></li> -->
-            <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Tour</a></li> -->
-            <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sign Up</a></li> -->
+          <!-- <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">Home</a></li> -->
+          <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Tour</a></li> -->
+          <!-- <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sign Up</a></li> -->
         </ul>
+      </div>
     </div>
-</div>
 
-<div class="content-wrapper">
+    <!-- create some space from the header -->
+    <div style="height: 50px;"></div>
 
-  <div class="content">
+    <div class="content-wrapper">
+
+      <div id="link-wrapper" class="pure-u-1 content" style="">
         <h2 class="is-center">Shorten a Link</h2>
 
-        <div class="pure-g">
-
-          <form class="pure-form pure-u-1" id="link-form">
-            <fieldset>
-              <div class="mandatory-form-part">
-                <legend name="legend">Paste your URL and hit Enter!</legend>
-                <div data-tip="Copied to Clipboard!">
-                  <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
-                </div>
+        <form class="pure-form" id="link-form">
+          <fieldset>
+            <div class="mandatory-form-part">
+              <legend name="legend">Paste your URL and hit Enter!</legend>
+              <div data-tip="Copied to Clipboard!">
+                <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
               </div>
-              <div class="optional-form-part">
-                Optionally, choose a custom short link:
-                <label for="link" style="display: flex;">
-                  <span style="margin: auto;">https://u9k.de/</span>
-                  <input style="width: 100%;" type="text" name="link" placeholder="e.g. awesome-food" title="Only letters of the alphabet (a-z, A-Z), digits (0-9) as well as '-' and '_'; at least 6 characters" pattern="[a-zA-Z0-9-_]{6,}">
-                </label>
-                <div style="text-align:center;">
-                  <input type="submit" name="submit" class="pure-button pure-button-primary" value="Do it!">
-                </div>
+            </div>
+            <div class="optional-form-part">
+              Optionally, choose a custom short link:
+              <label for="link" style="display: flex;">
+                <span style="margin: auto;">https://u9k.de/</span>
+                <input style="flex-grow: 1;" type="text" name="link" placeholder="e.g. awesome-food" title="Only letters of the alphabet (a-z, A-Z), digits (0-9) as well as '-' and '_'; at least 6 characters" pattern="[a-zA-Z0-9-_]{6,}">
+              </label>
+              <div class="is-center">
+                <input type="submit" name="submit" class="pure-button pure-button-primary" value="Shorten">
               </div>
-              <div class="form-qr-code">
-              </div>
-            </fieldset>
-          </form>
+            </div>
+            <div class="form-qr-code">
+            </div>
+          </fieldset>
+        </form>
 
-          <div id="link-list-wrapper" class="pure-u-1">
+        <div id="link-list-wrapper" class="">
 
-            These are your most recent links (<a id="button-clear-link-list">clear</a>):
-            <span title="This list of links is stored inside your browser only (localStorage), not on our servers. You can delete the link list by clicking 'clear'. This does not delete links from our servers.">
-              <a>
+          These are your most recent links (<a id="button-clear-link-list">clear</a>):
+          <span title="This list of links is stored inside your browser only (localStorage), not on our servers. You can delete the link list by clicking 'clear'. This does not delete links from our servers.">
+            <a>
               <svg style="display: inline; height: 1.5em; width: 1.5em; float: right;">
                 <use href="#question-mark-circle"></use>
               </svg>
-              </a>
-            </span>
+            </a>
+          </span>
 
-            <table id="link-list-table" class="pure-table pure-table-striped">
-              <thead>
-                <tr>
-                  <th>Link</th>
-                  <th>URL</th>
-                  <th>Creation Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- <tr> -->
-                  <!--   <td>Shortlink</td> -->
-                  <!--   <td>URL</td> -->
-                  <!--   <td>Create Date</td> -->
-                  <!-- </tr> -->
-              </tbody>
-            </table>
-          </div>
+          <table id="link-list-table" class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Link</th>
+                <th>URL</th>
+                <th>Creation Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- <tr> -->
+                <!--   <td>Shortlink</td> -->
+                <!--   <td>URL</td> -->
+                <!--   <td>Create Date</td> -->
+                <!-- </tr> -->
+            </tbody>
+          </table>
         </div>
+      </div>
 
-  </div>
+      <div id="file-wrapper" class="pure-u-1 content" style="">
+        <h2 class="is-center">Upload a file</h2>
 
-  <div style="height: 50px;"><!-- make some space for the footer, so it doesnt overlap --></div>
+        <form class="pure-form" id="file-form">
+          <fieldset>
+            <div class="mandatory-form-part">
+              <legend name="legend">Select your file by clicking the button or just drag&drop!</legend>
+              <div data-tip="Copied to Clipboard!">
+                <input type="file" name="file" class="pure-input-1" required="true"/>
+              </div>
+            </div>
+            <div class="optional-form-part">
+              <div class="is-center">
+                <input type="submit" name="submit" class="pure-button pure-button-primary" value="Upload">
+              </div>
+            </div>
+            <div class="form-qr-code">
+            </div>
+          </fieldset>
+        </form>
+      </div>
 
-  <div class="footer l-box is-center">
-    u9k.de is developed and hosted by <a href="https://blog.cubieserver.de/">Jack Henschel</a>.
-  </div>
+    </div>
 
-</div>
-<svg width="0" height="0" class="hidden">
-  <symbol id="question-mark-circle" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-  </symbol>
-</svg>
-</body>
+    <div style="height: 50px;"><!-- make some space for the footer, so it doesnt overlap --></div>
+
+    <div class="footer l-box is-center">
+      u9k.de (<a href="https://git.cubieserver.de/jh/u9k">Source Code</a>) - developed and hosted by <a href="https://blog.cubieserver.de/">Jack Henschel</a>.
+    </div>
+
+    <!-- SVG Icon definitions -->
+    <svg width="0" height="0" class="hidden">
+      <symbol id="question-mark-circle" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </symbol>
+    </svg>
+  </body>
 </html>
