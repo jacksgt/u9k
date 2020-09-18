@@ -5,14 +5,31 @@
 }
 
 /*
+ * -- COLORS --
+ * From https://flatuicolors.com/palette/de
+ */
+
+:root {
+    --dark-grey-blue: #4b6584;
+    --logo-green: #20bf6b;
+    --error-red: #eb3b5a;
+    --warning-orange: #fa8231;
+    --strong-blue: #4b7bec;
+    --light-blue: #45aaf2;
+    --black: #111;
+    --light-grey: #d1d8e0;
+    --grey: #a5b1c2;
+}
+
+/*
  * -- BASE STYLES --
  * Most of these are inherited from Base, but I want to change a few.
  */
 body {
     line-height: 1.7em;
-    color: #7f8c8d;
+    color: var(--black);
     font-size: 13px;
-    background: #f7f7f7;
+    background: var(--light-grey);
 }
 
 h1,
@@ -22,7 +39,7 @@ h4,
 h5,
 h6,
 label {
-    color: #4b6584;
+    color: var(--dark-grey-blue);
     margin: 0.5em;
 }
 
@@ -32,7 +49,7 @@ label {
 }
 
 a {
-    color: #4b7bec;
+    color: var(--strong-blue);
     cursor: pointer;
 }
 
@@ -64,7 +81,7 @@ a {
 }
 
 .pure-form input[type] {
-    border: 2px solid #ddd;
+    border: 2px solid var(--light-grey);
     box-shadow: none;
     font-size: 100%;
     margin-top: 1em;
@@ -107,8 +124,8 @@ a {
     right: 5px;
     padding: .5em .6em;
     box-sizing: border-box;
-    background: #1a1a1a;
-    color: #fff;
+    background: var(--black);
+    color: white;
     z-index: 9;
     font-size: 0.75em;
     /* height: 80%; */
@@ -118,7 +135,7 @@ a {
     border-radius: 5px;
     white-space: nowrap;
     word-wrap: normal;
-    /* vertical center */
+    /* vertical center: */
     margin: 0;
     position: absolute;
     top: 50%;
@@ -131,19 +148,19 @@ a {
  * I want my pure-button elements to look a little different
  */
 .pure-button {
-    background-color: #2d98da;
+    background-color: var(--light-blue);
     color: white;
     padding: 0.5em 2em;
     border-radius: 5px;
 }
 
 .pure-button-warning {
-    background: #fa8231;
+    background: var(--warning-orange);
     font-size: 120%;
 }
 
 .pure-button-ok {
-    background: #20bf6b;
+    background: var(--logo-green);
     font-size: 120%;
 }
 
@@ -152,7 +169,7 @@ a {
  */
 
 .pure-table thead {
-    background-color: #4b6584;
+    background-color: var(--dark-grey-blue);
     color: white;
 }
 
@@ -161,7 +178,7 @@ a {
 }
 
 .pure-table-striped tr:nth-child(2n-1) td {
-    background-color: #d1d8e0;
+    background-color: var(--light-grey);
 }
 
 #link-list-wrapper {
@@ -326,7 +343,8 @@ p/* This is the subheading that appears on the blue section */
 
 /* This is the class used for the footer */
 .footer {
-    background: #111;
+    background: var(--black);
+    color: var(--grey);
     position: fixed;
     bottom: 0;
     width: 100%;
