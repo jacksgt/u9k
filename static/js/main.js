@@ -179,4 +179,5 @@ function registerLinkFormHandler() {
 window.addEventListener('load', (event) => {
     registerLinkFormHandler();
     populateLinkList();
+    fileForm();
 });

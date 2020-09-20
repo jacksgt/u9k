@@ -12,7 +12,7 @@ func Init() {
 	}
 	// trim trailing slash
 	if baseUrl[len(baseUrl)-1] == '/' {
-		baseUrl = baseUrl[:len(baseUrl)-2]
+		baseUrl = baseUrl[:len(baseUrl)-1]
 	}
 	BaseUrl = baseUrl
 
