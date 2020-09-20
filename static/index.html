@@ -35,18 +35,15 @@
 
     <div class="content-wrapper">
 
-      <div id="link-wrapper" class="pure-u-1 content" style="">
+      <div id="link-wrapper" class="pure-u-1 content">
         <h2 class="is-center">Shorten a Link</h2>
 
         <form class="pure-form" id="link-form">
           <fieldset>
-            <div class="mandatory-form-part">
-              <legend name="legend">Paste your URL and hit Enter!</legend>
-              <div data-tip="Copied to Clipboard!">
-                <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
-              </div>
-            </div>
-            <div class="optional-form-part">
+            <legend name="legend">Paste your URL and hit Enter!</legend>
+            <div class="input-form-part">
+              <input type="url" name="url" class="pure-input-1" placeholder="https://..." required="true"/>
+              <br>
               Optionally, choose a custom short link:
               <label for="link" style="display: flex;">
                 <span style="margin: auto;">https://u9k.de/</span>
@@ -56,9 +53,16 @@
                 <input type="submit" name="submit" class="pure-button pure-button-primary" value="Shorten">
               </div>
             </div>
-            <div class="form-qr-code">
+
+            <div class="output-form-part">
+              <div data-tip="Copied to Clipboard!">
+                <input type="url" name="outputUrl" class="pure-input-1 output-url" >
+              </div>
+              <div class="form-qr-code">
+              </div>
             </div>
-          </fieldset>
+
+         </fieldset>
         </form>
 
         <div id="link-list-wrapper" class="">
@@ -97,10 +101,11 @@
         <form class="pure-form" id="file-form">
           <fieldset>
             <legend name="legend">Click the button to select your file or just drag&drop it there!</legend>
+
             <div class="input-form-part">
               <input id="fake-file-input" type="file" name="file" style="display: none;"/>
               <div class="is-center">
-                <div id="file-preview-wrapper" style="cursor: pointer;">
+                <div id="file-preview-wrapper" style="cursor: pointer; word-wrap: anywhere;">
                   <svg>
                     <use href="#symbol-file-upload"></use>
                   </svg>
@@ -109,7 +114,8 @@
                 <input type="submit" name="submit" class="pure-button pure-button-primary" value="Upload">
               </div>
             </div>
-            <div class="output-form-part" style="display: none;">
+
+            <div class="output-form-part">
               <div data-tip="Copied to Clipboard!">
                 <input type="url" name="outputUrl" class="pure-input-1 output-url" >
               </div>
@@ -118,128 +124,13 @@
             </div>
           </fieldset>
         </form>
+
       </div>
 
     </div>
 
     <script>
-      let uploadFiles = [];
-      function _id(id) {
-	      return document.getElementById(id);
-      }
 
-      function _query(query) {
-          return document.querySelector(query);
-      }
-      // TODO: query vs. getbyid?
-
-      function fileForm() {
-          const form = _query('#file-form');
-          const fileWrapper = _id("file-wrapper");
-          const submitButton = form.submit;
-          const fakeFileSelect = _id("fake-file-input");
-          const filePreviewWrapper = _id("file-preview-wrapper");
-
-          function displaySelectedFile(file) {
-              _id("file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
-              console.log(file.name, file.type, file.size/1000);
-          }
-
-          function fileSelectHandler(e) {
-              // cancel event and hover styling
-              fileDragHoverHandler(e);
-              const files = e.target.files || e.dataTransfer.files;
-              // only supports uploading one file at a time
-              uploadFiles = [files[0]];
-              displaySelectedFile(files[0]);
-          }
-
-          function fileDragHoverHandler(e) {
-              e.stopPropagation();
-              e.preventDefault();
-              (e.type == "dragover") ?
-                  fileWrapper.classList.add("highlighted") :
-                  fileWrapper.classList.remove("highlighted");
-          }
-
-          fileWrapper.addEventListener("dragenter", fileDragHoverHandler, false);
-          fileWrapper.addEventListener("dragleave", fileDragHoverHandler, false);
-          fileWrapper.addEventListener("drop", fileSelectHandler, false);
-
-          // when someone clicks on the element, trigger the hidden file input
-          // then the browser opens up a file picker dialog
-          fakeFileSelect.addEventListener("change", fileSelectHandler, false);
-          filePreviewWrapper.addEventListener("click", function() {
-              fakeFileSelect.click();
-          }, false);
-
-          form.addEventListener('submit', (event) => {
-              // disable default action
-              event.preventDefault();
-
-              if (uploadFiles.length <= 0) {
-                  // TODO
-                  console.log("ERROR");
-                  return
-              }
-
-              // configure a request
-              const xhr = new XMLHttpRequest();
-              xhr.open('POST', '/file/');
-
-              // prepare form data
-              let data = new FormData(form);
-
-              // set up event handlers
-              xhr.addEventListener("progress", (e) => {
-                  let percent = (e.loaded / e.total * 100) || 100;
-                  console.log(percent);
-                  // TODO
-              });
-              xhr.addEventListener("load", () => {
-                  console.log(xhr.responseText);
-                  if (xhr.readyState == 4) {
-                      switch (xhr.status) {
-                      case 200:
-                          const obj = JSON.parse(xhr.responseText);
-                          const link = obj.link;
-                          console.log(obj, link);
-                          // change button style and text
-                          form.querySelector("legend").innerHTML = "Your file is now available under the following URL:"
-                          // show new URL and QR code
-                          form.querySelector(".output-form-part").style.display = "block";
-                          const field = form.outputUrl;
-                          field.value = link;
-                          selectAndCopy(field);
-                          showQrCode(form.querySelector(".form-qr-code"), link)
-                          // hide original form (input and submit)
-                          form.querySelector(".input-form-part").style.display = "none";
-                          // // save in local storage
-                          // localSaveLink(obj);
-                          // TODO
-                          break;
-
-                      default:
-                          console.log("ERROR:", xhr);
-                          // change button style and text
-                          submitBbutton.classList.add('pure-button-warning');
-                          submitButton.value = "Try again";
-                          form.querySelector("legend").innerHTML = xhr.responseText;
-                          break;
-                      }
-                  }
-              });
-              xhr.addEventListener("error", () => {
-                  console.log("ERROR:", xhr);
-                  // change button style and text
-                  submitButton.classList.add('pure-button-warning');
-                  submitButton.value = "Error!";
-              });
-
-              // send request
-              xhr.send(data);
-          });
-      }
     </script>
 
     <div style="height: 50px;"><!-- make some space for the footer, so it doesnt overlap --></div>

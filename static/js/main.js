@@ -1,11 +1,24 @@
+function _query(query) {
+    return document.querySelector(query);
+}
+
+function _queryAll(query) {
+    return document.querySelectorAll(query);
+}
+
+
 function selectAndCopy(element) {
     element.select(); // select (highlight) text
-    document.execCommand('copy'); // copy to clipboard
-    const tooltip = element.parentElement;
-    tooltip.classList.toggle("show"); // show tooltip
-    setTimeout(function(){ // hide tooltip after 5 seconds
-        tooltip.classList.toggle("show");
-    }, 5000);
+    if (document.execCommand('copy') === true) { // copy to clipboard
+        // copy to clipboard only works for short-running handlers,
+        // so we check the return value and only display the tooltip
+        // if copy to clipboard was successfull
+        const tooltip = element.parentElement;
+        tooltip.classList.add("show"); // show tooltip
+        setTimeout(function(){ // hide tooltip after 5 seconds
+            tooltip.classList.remove("show");
+        }, 5000);
+    }
 }
 
 function showQrCode(element, data) {
@@ -109,9 +122,118 @@ function populateLinkList() {
     }
 }
 
-function registerLinkFormHandler() {
-    const linkForm = document.querySelector('#link-form');
-    linkForm.addEventListener('submit', (event) => {
+function fileWidget() {
+    let uploadFiles = [];
+    const form = _query('#file-form');
+    const fileWrapper = _query("#file-wrapper");
+    const submitButton = form.submit;
+    const fakeFileSelect = _query("#fake-file-input");
+    const filePreviewWrapper = _query("#file-preview-wrapper");
+
+    function displaySelectedFile(file) {
+        _query("#file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
+        console.log(file.name, file.type, file.size/1000);
+    }
+
+    function fileSelectHandler(e) {
+        // cancel event and hover styling
+        fileDragHoverHandler(e);
+        const files = e.target.files || e.dataTransfer.files;
+        // only supports uploading one file at a time
+        uploadFiles = [files[0]];
+        displaySelectedFile(files[0]);
+    }
+
+    function fileDragHoverHandler(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        (e.type == "dragover") ?
+            fileWrapper.classList.add("highlighted") :
+            fileWrapper.classList.remove("highlighted");
+    }
+
+    fileWrapper.addEventListener("dragenter", fileDragHoverHandler, false);
+    fileWrapper.addEventListener("dragleave", fileDragHoverHandler, false);
+    fileWrapper.addEventListener("drop", fileSelectHandler, false);
+
+    // when someone clicks on the element, trigger the hidden file input
+    // then the browser opens up a file picker dialog
+    fakeFileSelect.addEventListener("change", fileSelectHandler, false);
+    filePreviewWrapper.addEventListener("click", function() {
+        fakeFileSelect.click();
+    }, false);
+
+    form.addEventListener('submit', (event) => {
+        // disable default action
+        event.preventDefault();
+
+        if (uploadFiles.length <= 0) {
+            form.querySelector("legend").innerHTML = "Please select a file before submitting:"
+            console.log("ERROR: no file specified");
+            return
+        }
+
+        // configure a request
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/file/');
+
+        // prepare form data
+        let data = new FormData(form);
+
+        // set up event handlers
+        xhr.upload.addEventListener("progress", (e) => {
+            let percent = Math.round(e.loaded / e.total * 100) || 100;
+            form.submit.value = `${percent} %`;
+        });
+        xhr.addEventListener("load", () => {
+            console.log(xhr.responseText);
+            if (xhr.readyState == 4) {
+                switch (xhr.status) {
+                case 200:
+                    const obj = JSON.parse(xhr.responseText);
+                    const link = obj.link;
+                    console.log(obj, link);
+                    // change button style and text
+                    form.querySelector("legend").innerHTML = "Your file is now available under the following URL:"
+                    // show new URL and QR code
+                    form.querySelector(".output-form-part").style.display = "block";
+                    const field = form.outputUrl;
+                    field.value = link;
+                    selectAndCopy(field);
+                    showQrCode(form.querySelector(".form-qr-code"), link)
+                    // hide original form (input and submit)
+                    form.querySelector(".input-form-part").style.display = "none";
+                    // // save in local storage
+                    // localSaveLink(obj);
+                    // TODO
+                    break;
+
+                default:
+                    console.log("ERROR:", xhr);
+                    // change button style and text
+                    submitBbutton.classList.add('pure-button-warning');
+                    submitButton.value = "Try again";
+                    form.querySelector("legend").innerHTML = xhr.responseText;
+                    break;
+                }
+            }
+        });
+        xhr.addEventListener("error", () => {
+            console.log("ERROR:", xhr);
+            // change button style and text
+            submitButton.classList.add('pure-button-warning');
+            submitButton.value = "Error!";
+        });
+
+        // send request
+        xhr.send(data);
+    });
+}
+
+function linkWidget() {
+    const linkForm = _query('#link-form');
+
+    function submitHandler(event) {
         // disable default action
         event.preventDefault();
 
@@ -122,11 +244,8 @@ function registerLinkFormHandler() {
         // prepare form data
         let data = new FormData(linkForm);
 
-        // set headers
-        // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
-
         // set up event handlers
-        xhr.addEventListener("progress", () => {});
+        //xhr.addEventListener("progress", () => {});
         xhr.addEventListener("load", () => {
             console.log(xhr.responseText);
             if (xhr.readyState == 4) {
@@ -136,17 +255,14 @@ function registerLinkFormHandler() {
                     const link = obj.link;
                     // change button style and text
                     linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
-                    var button = linkForm.submit;
-                    button.classList.add('pure-button-ok');
-                    button.value = "Done!";
-                    // update with new URL
-                    const field = linkForm.url;
+                    // show new URL and QR code
+                    linkForm.querySelector(".output-form-part").style.display = "block";
+                    const field = linkForm.outputUrl;
                     field.value = link;
-                    field.readOnly = true;
                     selectAndCopy(field);
-                    // hide optional form part (input and submit)
-                    linkForm.querySelector(".optional-form-part").style.display = "none";
                     showQrCode(linkForm.querySelector(".form-qr-code"), link)
+                    // hide input form part (url and submit)
+                    linkForm.querySelector(".input-form-part").style.display = "none";
                     // save in local storage
                     localSaveLink(obj);
                     break;
@@ -154,9 +270,9 @@ function registerLinkFormHandler() {
                 default:
                     console.log("ERROR:", xhr);
                     // change button style and text
-                    var button = linkForm.submit;
+                    const button = linkForm.submit;
                     button.classList.add('pure-button-warning');
-                    button.value = "Try again ...";
+                    button.value = "Try again";
                     linkForm.querySelector("legend").innerHTML = xhr.responseText;
                     break;
                 }
@@ -166,18 +282,20 @@ function registerLinkFormHandler() {
             console.log("ERROR:", xhr);
             // change button style and text
             const button = linkForm.submit;
-            button.classList.add('pure-button-orange');
-            button.value = "Oops, there was an error!";
+            button.classList.add('pure-button-warning');
+            button.value = "Error!";
         });
 
         // send request
         xhr.send(data);
-    });
+    }
+
+    linkForm.addEventListener('submit', submitHandler);
 }
 
 /* register all event handlers */
 window.addEventListener('load', (event) => {
-    registerLinkFormHandler();
+    linkWidget();
     populateLinkList();
-    fileForm();
+    fileWidget();
 });
