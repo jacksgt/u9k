@@ -22,7 +22,7 @@ type BaseType interface {
 type Base struct {
 	Id              string    `json:"-"` // omit from JSON
 	Link            string    `json:"link"`
-	CreateTimestamp time.Time `json:"create_ts"`
+	CreateTimestamp time.Time `json:"createTs"`
 	Counter         int64     `json:"counter"`
 }
 

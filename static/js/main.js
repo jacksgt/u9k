@@ -106,14 +106,26 @@ function populateLinkList() {
        so the most recent item is at the top */
     for (let i = linkList.length-1; i >= 0; i--) {
         const l = linkList[i];
-        let child = document.createElement('tr');
-        // TODO: sanitize the treatment of these JSON fields
-        child.innerHTML = `
-              <td><a href="${l.link}" target="_blank">${l.link.split('://')[1]}</a></td>
-              <td><a href="${l.url}" target="_blank">${l.url}</a></td>
-              <td>${l.createTs.split('T')[0]}</td>
+        let text = "";
+        try {
+            const link = l.link;
+            const prettyLink = link.split('://')[1];
+            const url = l.url;
+            const ts = l.createTs.split('T')[0] || "";
+            text = `
+              <td><a href="${link}" target="_blank">${prettyLink}</a></td>
+              <td><a href="${url}" target="_blank">${url}</a></td>
+              <td>${ts}</td>
           `;
-        tableBody.append(child);
+        } catch(e) {
+            console.log("Error processing local link:", l, e);
+        }
+        if (text != "") {
+            let child = document.createElement('tr');
+            child.innerHTML = text;
+            tableBody.append(child);
+        }
+
     }
 
     /* if there are links in the local list, show the wrapper element to the user (by default hidden) */
