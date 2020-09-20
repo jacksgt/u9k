@@ -143,8 +143,8 @@ function fileWidget() {
     const filePreviewWrapper = _query("#file-preview-wrapper");
 
     function displaySelectedFile(file) {
+        // TODO: sanitize file handling
         _query("#file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
-        console.log(file.name, file.type, file.size/1000);
     }
 
     function fileSelectHandler(e) {
@@ -166,6 +166,7 @@ function fileWidget() {
 
     fileWrapper.addEventListener("dragenter", fileDragHoverHandler, false);
     fileWrapper.addEventListener("dragleave", fileDragHoverHandler, false);
+    fileWrapper.addEventListener("dragover", fileDragHoverHandler, false);
     fileWrapper.addEventListener("drop", fileSelectHandler, false);
 
     // when someone clicks on the element, trigger the hidden file input
@@ -190,7 +191,8 @@ function fileWidget() {
         xhr.open('POST', '/file/');
 
         // prepare form data
-        let data = new FormData(form);
+        let data = new FormData();
+        data.append("file", uploadFiles[0]);
 
         // set up event handlers
         xhr.upload.addEventListener("progress", (e) => {
@@ -223,7 +225,7 @@ function fileWidget() {
                 default:
                     console.log("ERROR:", xhr);
                     // change button style and text
-                    submitBbutton.classList.add('pure-button-warning');
+                    submitButton.classList.add('pure-button-warning');
                     submitButton.value = "Try again";
                     form.querySelector("legend").innerHTML = xhr.responseText;
                     break;
