@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"time"
 
 	"u9k/api/render"
 	"u9k/db"
@@ -17,22 +18,34 @@ func postFileHandler(w http.ResponseWriter, r *http.Request) {
 	// get the file from the form (name should be "file")
 	fh := extractFormFileHeader("file", r)
 	if fh == nil {
-		httpError2(w, r, 400)
+		httpError2(w, r, 400, "No file found in POST request")
 		return
 	}
 
 	// open filehandle
 	fd, err := fh.Open()
 	if err != nil {
-		httpError2(w, r, 400)
+		httpError2(w, r, 400, "Failed to read uploaded file")
 		return
 	}
 	defer fd.Close()
+
+	expireStr := r.PostFormValue("expire")
+	if expireStr == "" {
+		expireStr = "168h" // 1 week
+	}
+
+	expire, err := time.ParseDuration(expireStr)
+	if err != nil {
+		httpError2(w, r, 400, "Invalid format in 'expire' field")
+		return
+	}
 
 	file := new(types.File)
 	file.Name = fh.Filename
 	file.Size = fh.Size
 	file.Type = getFileContentType(fd)
+	file.Expire = types.Duration(expire)
 
 	// save metadata in the DB
 	err = db.StoreFile(file)

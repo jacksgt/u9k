@@ -193,7 +193,7 @@ function fileWidget() {
         // prepare form data
         let data = new FormData();
         data.append("file", uploadFiles[0]);
-        data.append("expires", form.expire.value);
+        data.append("expire", form.expire.value);
 
         // set up event handlers
         xhr.upload.addEventListener("progress", (e) => {

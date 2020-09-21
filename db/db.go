@@ -99,9 +99,10 @@ func GetLink(id string) *types.Link {
 
 func StoreFile(file *types.File) error {
 	err := pool.QueryRow(context.Background(),
-		"INSERT INTO files (filename, filetype) VALUES ($1, $2) RETURNING id, create_ts",
+		"INSERT INTO files (filename, filetype, expire) VALUES ($1, $2, $3) RETURNING id, create_ts",
 		file.Name,
 		file.Type,
+		time.Duration(file.Expire), // cast to time.Duration so pgx knows how to treat the type
 	).Scan(&file.Id, &file.CreateTimestamp)
 
 	if err != nil {
@@ -115,9 +116,9 @@ func StoreFile(file *types.File) error {
 func GetFile(id string) *types.File {
 	file := new(types.File)
 	err := pool.QueryRow(context.Background(),
-		"SELECT id, filename, filetype, create_ts, counter FROM files WHERE id = $1",
+		"SELECT id, filename, filetype, create_ts, counter, expire FROM files WHERE id = $1",
 		id,
-	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter)
+	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &file.Expire)
 	if err != nil {
 		log.Printf("Failed to retrieve file %s from DB: %s\n", id, err)
 		return nil

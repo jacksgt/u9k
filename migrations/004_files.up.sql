@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS files (
        filename STRING,
        filetype STRING,
        create_ts TIMESTAMP DEFAULT NOW()::timestamp,
-       counter INT8 DEFAULT (INT '0')
+       counter INT8 DEFAULT (INT '0'),
+       expire INTERVAL
        );

@@ -10,11 +10,6 @@ import (
 
 // BASE DEFINITIONS
 type BaseType interface {
-	// Id string
-	// Link string
-	// CreateTimestamp time.Time
-	// Counter int64
-
 	ExportLink() string
 	ToJson() string
 }
@@ -49,10 +44,11 @@ func (l *Link) ToJson() string {
 
 // FILE DEFINITIONS
 type File struct {
-	Base        // inherit from Base
-	Name string `json:"filename"`
-	Type string `json:"filetype"`
-	Size int64  `json:"filesize"`
+	Base            // inherit from Base
+	Name   string   `json:"filename"`
+	Type   string   `json:"filetype"`
+	Size   int64    `json:"filesize"`
+	Expire Duration `json:"expire"`
 }
 
 func (f *File) ExportLink() string {
