@@ -8,6 +8,7 @@ import (
 
 	"u9k/api/render"
 	"u9k/db"
+	"u9k/models"
 	"u9k/storage"
 	"u9k/types"
 
@@ -41,7 +42,7 @@ func postFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file := new(types.File)
+	file := new(models.File)
 	file.Name = fh.Filename
 	file.Size = fh.Size
 	file.Type = getFileContentType(fd)

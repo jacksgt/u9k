@@ -6,7 +6,7 @@ import (
 
 	"u9k/api/render"
 	"u9k/db"
-	"u9k/types"
+	"u9k/models"
 
 	"github.com/go-chi/chi"
 )
@@ -23,7 +23,7 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link := new(types.Link)
+	link := new(models.Link)
 	link.Url = url
 	shortLink := r.PostFormValue("link")
 	if shortLink != "" {

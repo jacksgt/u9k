@@ -1,19 +1,18 @@
-package types
+package models
 
 import (
 	"encoding/json"
-	"log"
 	"time"
-
 	"u9k/config"
+	"u9k/types"
 )
 
-// BASE DEFINITIONS
 type BaseType interface {
 	ExportLink() string
 	ToJson() string
 }
 
+// BASE DEFINITIONS
 type Base struct {
 	Id              string    `json:"-"` // omit from JSON
 	Link            string    `json:"link"`
@@ -36,19 +35,18 @@ func (l *Link) ToJson() string {
 	l.ExportLink()
 	buf, err := json.Marshal(l)
 	if err != nil {
-		log.Printf("Error generating JSON: %s\n", err)
-		return ""
+		panic("Error generating JSON:" + err.Error())
 	}
 	return string(buf)
 }
 
 // FILE DEFINITIONS
 type File struct {
-	Base            // inherit from Base
-	Name   string   `json:"filename"`
-	Type   string   `json:"filetype"`
-	Size   int64    `json:"filesize"`
-	Expire Duration `json:"expire"`
+	Base                  // inherit from Base
+	Name   string         `json:"filename"`
+	Type   string         `json:"filetype"`
+	Size   int64          `json:"filesize"`
+	Expire types.Duration `json:"expire"`
 }
 
 func (f *File) ExportLink() string {
@@ -60,8 +58,7 @@ func (f *File) ToJson() string {
 	f.ExportLink()
 	buf, err := json.Marshal(f)
 	if err != nil {
-		log.Printf("Error generating JSON: %s\n", err)
-		return ""
+		panic("Error generating JSON: " + err.Error())
 	}
 	return string(buf)
 }
