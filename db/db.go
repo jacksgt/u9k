@@ -17,13 +17,11 @@ import (
 // shared connection pool
 var pool *pgxpool.Pool
 
-func InitDBConnection(forceVersion int) {
-	rand.Seed(time.Now().UnixNano())
-
+func Init(forceVersion int) {
 	// set up connection configuration
 	conf, err := pgxpool.ParseConfig(config.DbConnUrl)
 	if err != nil {
-		log.Fatal("error configuring the database: ", err)
+		log.Fatalf("Failed to configure the database: %s\n", err)
 	}
 
 	// connect to the database
@@ -33,7 +31,7 @@ func InitDBConnection(forceVersion int) {
 	// https://github.com/jackc/pgx/wiki/Getting-started-with-pgx
 	pool, err = pgxpool.ConnectConfig(context.Background(), conf)
 	if err != nil {
-		log.Fatal("error connecting to the database: ", err)
+		log.Fatalf("Failed to connect to database: %s\n", err)
 	}
 	//defer pool.Close(context.Background())
 

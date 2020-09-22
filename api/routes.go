@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -20,8 +21,14 @@ func Init() {
 	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static", staticFS).ServeHTTP(w, r)
 	})
+
+	// to avoid lookups to the database which result in 404 anyway
 	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		// to avoid lookups to the database which result in 404 anyway
+		return
+	})
+	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		// do not index anything else than the main site
+		fmt.Fprintf(w, "User-agent: *\nDisallow: /\nAllow: /index.html\n")
 		return
 	})
 
@@ -35,6 +42,9 @@ func Init() {
 	r.Get("/file/{fileId}", getFileHandler)
 	r.Get("/{linkId}", getLinkHandler)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/index.html")
+	})
+	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/index.html")
 	})
 
