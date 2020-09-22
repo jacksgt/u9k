@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"u9k/config"
@@ -105,7 +106,6 @@ func StoreFile(file *models.File) error {
 		file.Type,
 		time.Duration(file.Expire), // cast to time.Duration so pgx knows how to treat the type
 	).Scan(&file.Id, &file.CreateTimestamp)
-
 	if err != nil {
 		log.Printf("Failed to insert file: %s\n", err)
 		return err
@@ -128,6 +128,44 @@ func GetFile(id string) *models.File {
 	file.Expire = types.Duration(expire)
 
 	return file
+}
+
+func DeleteFile(id string) error {
+	err := pool.QueryRow(context.Background(),
+		"DELETE FROM files WHERE id = $1 LIMIT 1 RETURNING id",
+		id,
+	).Scan(&id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetExpiredFiles() ([]models.File, error) {
+	files := make([]models.File, 0)
+	rows, err := pool.Query(context.Background(),
+		"SELECT id, filename, filetype, create_ts, counter, expire FROM files WHERE create_ts + expire < NOW()",
+	)
+	if err != nil {
+		return files, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var expire time.Duration
+		var file models.File
+		err := rows.Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &expire)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return files, nil
+			}
+			return files, err
+		}
+		file.Expire = types.Duration(expire)
+		files = append(files, file)
+	}
+
+	return files, nil
 }
 
 func IncrementLinkCounter(id string) int64 {
