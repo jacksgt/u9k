@@ -34,3 +34,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 		return errors.New("invalid duration")
 	}
 }
+
+func (d Duration) String() string {
+	return time.Duration(d).String()
+}

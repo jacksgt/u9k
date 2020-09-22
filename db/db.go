@@ -10,6 +10,7 @@ import (
 
 	"u9k/config"
 	"u9k/models"
+	"u9k/types"
 )
 
 // shared connection pool
@@ -114,15 +115,17 @@ func StoreFile(file *models.File) error {
 }
 
 func GetFile(id string) *models.File {
+	var expire time.Duration
 	file := new(models.File)
 	err := pool.QueryRow(context.Background(),
 		"SELECT id, filename, filetype, create_ts, counter, expire FROM files WHERE id = $1",
 		id,
-	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &file.Expire)
+	).Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &expire)
 	if err != nil {
 		log.Printf("Failed to retrieve file %s from DB: %s\n", id, err)
 		return nil
 	}
+	file.Expire = types.Duration(expire)
 
 	return file
 }

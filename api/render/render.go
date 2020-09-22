@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"u9k/models"
 )
@@ -21,5 +22,5 @@ func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
 }
 
 func PreviewFile(w http.ResponseWriter, r *http.Request, f *models.File) {
-	fmt.Fprintf(w, "Filename: %s<br>\n Link: %s?raw=true<br>\n Downloads: %d\n", f.Name, f.ExportLink(), f.Counter)
+	fmt.Fprintf(w, "Filename: %s\n Link: %s?raw=true\n Downloads: %d\n Expires at: %s\n", f.Name, f.ExportLink(), f.Counter, f.CreateTimestamp.Add(time.Duration(f.Expire)))
 }
