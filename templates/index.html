@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-  {{template "_head.html"}}
+  <head>
+    {{template "_head.html"}}
+    <script defer src="/static/js/main.js"></script>
+    <script defer src="/static/js/qrcode.min.js"></script> <!-- TODO: dynamically load this library when user focuses on link input form -->
+  </head>
   <body>
 
     {{ template "_header.html" }}
@@ -109,7 +113,7 @@
 
     </div>
 
-    {{ template "_footer.html" }}
+    {{ template "_footer.html" . }}
 
     {{ template "_icons.html" }}
   </body>

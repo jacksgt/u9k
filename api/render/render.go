@@ -7,13 +7,22 @@ import (
 	"net/http"
 	"time"
 
+	"u9k/config"
 	"u9k/models"
 )
 
 var reload bool = false
 
+type M map[string]interface{}
+
+var appConfig M
+
 func RedirectLinkPage(w http.ResponseWriter, r *http.Request, link *models.Link) {
-	Template(w, "link.html", link)
+	data := M{
+		"Link":   link,
+		"Config": appConfig,
+	}
+	Template(w, "link.html", data)
 }
 
 func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
@@ -31,7 +40,13 @@ func PreviewFile(w http.ResponseWriter, r *http.Request, f *models.File) {
 var templates *template.Template
 
 func Init(reloadTemplates bool) {
+	// craft another config object so we don't accidentally expose any sensitive data
+	appConfig = M{
+		"Version": config.Version,
+	}
+
 	if reloadTemplates {
+		// loads templates before each execution
 		reload = true
 		return
 	}
@@ -68,5 +83,9 @@ func Template(w http.ResponseWriter, name string, data interface{}) {
 }
 
 func Index(w http.ResponseWriter) {
-	Template(w, "index.html", nil)
+	data := M{
+		"Config": appConfig,
+	}
+	fmt.Printf("%v\n", data)
+	Template(w, "index.html", data)
 }

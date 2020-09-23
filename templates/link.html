@@ -1,15 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
     {{template "_head.html"}}
-<body>
+  </head>
+  <body>
+    {{ template "_header.html" }}
 
-  <h1>This is a link!</h1>
+    <div class="content-wrapper">
+      <div class="pure-u-1 content is-center">
+        <p style="font-size: 1.25em;">
+        The link
+        <br>
+        <a href="{{ .Link.ExportLink }}">{{ .Link.ExportLink }}</a>
+        <br>
+        points to
+        <br>
+        <a href="{{ .Link.Url }}">{{ .Link.Url }}</a>
+        </p>
+        <p>
+        Created on {{ .Link.CreateTimestamp.Format "2006-01-02" }}, used {{ .Link.Counter }} times since then.
+        </p>
+      </div>
+    </div>
 
-  The link <a href="{{ .ExportLink }}">{{ .ExportLink }}</a> points to <a href="{{ .Url }}">{{ .Url }}</a>
-  <br>
-  Created on {{ .CreateTimestamp.Format "2006-01-02" }}, used {{ .Counter }} times since then.
-  <br>
+    {{ template "_footer.html" . }}
 
-{{template "_footer.html"}}
-</body>
+    {{ template "_icons.html" }}
+  </body>
 </html>
