@@ -66,3 +66,7 @@ func Template(w http.ResponseWriter, name string, data interface{}) {
 		// TODO: httpError
 	}
 }
+
+func Index(w http.ResponseWriter) {
+	Template(w, "index.html", nil)
+}

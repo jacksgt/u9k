@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/httprate"
 
+	"u9k/api/render"
 	"u9k/config"
 )
 
@@ -24,6 +25,7 @@ func Init() {
 
 	// to avoid lookups to the database which result in 404 anyway
 	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "/static/icons/favicon.ico")
 		return
 	})
 	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -41,13 +43,13 @@ func Init() {
 	r.Get("/link/{linkId}", previewLinkHandler)
 	r.Get("/file/{fileId}", getFileHandler)
 	r.Get("/{linkId}", getLinkHandler)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})
-	r.Get("/index.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./static/index.html")
-	})
+	r.Get("/", indexHandler)
+	r.Get("/index.html", indexHandler)
 
 	log.Printf("HTTP Server listening on %s\n", config.HttpListenAddr)
 	http.ListenAndServe(config.HttpListenAddr, r)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	render.Index(w)
 }
