@@ -28,7 +28,7 @@ func Init() {
 	})
 	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		// do not index anything else than the main site
-		fmt.Fprintf(w, "User-agent: *\nDisallow: /\nAllow: /index.html\n")
+		fmt.Fprintf(w, "User-agent: *\nDisallow: /\nAllow: /index.html\nAllow: /$\n")
 		return
 	})
 

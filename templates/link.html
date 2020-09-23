@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    {{template "_head.html"}}
+<body>
+
+  <h1>This is a link!</h1>
+
+  The link <a href="{{ .ExportLink }}">{{ .ExportLink }}</a> points to <a href="{{ .Url }}">{{ .Url }}</a>
+  <br>
+  Created on {{ .CreateTimestamp.Format "2006-01-02" }}, used {{ .Counter }} times since then.
+  <br>
+
+{{template "_footer.html"}}
+</body>
+</html>

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"u9k/api"
+	"u9k/api/render"
 	"u9k/config"
 	"u9k/db"
 	"u9k/schedules"
@@ -21,6 +22,7 @@ func main() {
 
 	// parse CLI flags
 	forceMigrationVersion := flag.Int("forceMigrationVersion", 0, "Sets a migration version and resets the dirty state")
+	reloadTemplates := flag.Bool("reloadTemplates", false, "Reload HTML templates with each request")
 	flag.Parse()
 
 	// initialize components (these function will log.Fatal on error)
@@ -28,5 +30,6 @@ func main() {
 	db.Init(*forceMigrationVersion)
 	storage.Init()
 	schedules.Init()
+	render.Init(*reloadTemplates)
 	api.Init()
 }
