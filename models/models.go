@@ -2,7 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"github.com/hako/durafmt"
+
 	"u9k/config"
 	"u9k/types"
 )
@@ -61,4 +65,38 @@ func (f *File) ToJson() string {
 		panic("Error generating JSON: " + err.Error())
 	}
 	return string(buf)
+}
+
+// TODO: write test
+func (f *File) PrettyExpiresIn() string {
+	d := time.Duration(f.Expire)
+	if d.Seconds() == 0 {
+		return "Never"
+	}
+
+	d = time.Until(f.CreateTimestamp.Add(d))
+	// only show the most significant element, e.g. "2 weeks"
+	str := durafmt.Parse(d).LimitFirstN(1).String()
+	return str
+}
+
+// TODO: write test
+func (f *File) PrettyFileSize() string {
+	return byteCountIEC(f.Size)
+}
+
+// TODO: write test
+// from https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
+func byteCountIEC(b int64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB",
+		float64(b)/float64(div), "KMGTPE"[exp])
 }

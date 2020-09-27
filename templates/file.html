@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "_head.html"}}
+  </head>
+  <body>
+    {{ template "_header.html" }}
+
+    <div class="content-wrapper">
+      <div class="pure-u-1 content is-center">
+        <p style="font-size: 1.25em;">
+          <i>Click to download the file:</i>
+          <br>
+          <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">
+            "{{ .File.Name }}"
+            <br>
+            <svg>
+              <use href="#symbol_file-download"></use>
+            </svg>
+          </a>
+          <!-- <br> -->
+          <!-- <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">{{ .File.ExportLink }}?raw=true</a> -->
+          <br>
+          Availability expires in {{ .File.PrettyExpiresIn }}
+        </p>
+        <p>
+          Uploaded on {{ .File.CreateTimestamp.Format "2006-01-02" }}, downloaded {{ .File.Counter }} times since then.
+        </p>
+      </div>
+    </div>
+
+    {{ template "_footer.html" . }}
+
+    {{ template "_icons.html" }}
+  </body>
+</html>

@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"time"
 
 	"u9k/config"
 	"u9k/models"
@@ -34,7 +33,11 @@ func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
 }
 
 func PreviewFile(w http.ResponseWriter, r *http.Request, f *models.File) {
-	fmt.Fprintf(w, "Filename: %s\n Link: %s?raw=true\n Downloads: %d\n Expires at: %s\n", f.Name, f.ExportLink(), f.Counter, f.CreateTimestamp.Add(time.Duration(f.Expire)))
+	data := M{
+		"File":   f,
+		"Config": appConfig,
+	}
+	Template(w, "file.html", data)
 }
 
 var templates *template.Template
@@ -86,6 +89,5 @@ func Index(w http.ResponseWriter) {
 	data := M{
 		"Config": appConfig,
 	}
-	fmt.Printf("%v\n", data)
 	Template(w, "index.html", data)
 }
