@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 
 	"u9k/config"
 	"u9k/models"
@@ -63,7 +64,9 @@ func loadTemplates() {
 	if err != nil {
 		panic("Failed to load templates: " + err.Error())
 	}
-	log.Printf("Loaded templates: %s\n", templates.DefinedTemplates())
+	// strip the static prefix
+	buf := strings.TrimPrefix(templates.DefinedTemplates(), "; defined templates are: ")
+	log.Printf("Loaded templates: %s", buf)
 }
 
 func Template(w http.ResponseWriter, name string, data interface{}) {

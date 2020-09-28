@@ -34,6 +34,7 @@ func Init() {
 		return
 	})
 
+	r.Get("/health/", healthHandler)
 	r.Group(func(r chi.Router) {
 		// limit endpoints in this group to one request per second
 		r.Use(httprate.Limit(1, 1*time.Second))
