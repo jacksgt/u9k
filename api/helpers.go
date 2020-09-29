@@ -99,7 +99,7 @@ func getFormFile(name string, w http.ResponseWriter, r *http.Request) ([]byte, s
 
 func extractFormFileHeader(name string, r *http.Request) *multipart.FileHeader {
 	// parse uploaded data
-	err := r.ParseMultipartForm(10000000) // 10 MB in memory, rest on disk
+	err := r.ParseMultipartForm(int64(10 << 20)) // 32 MB in memory, rest on disk
 	if err != nil {
 		log.Printf("Failed to parse form: %s\n", err)
 		return nil

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -36,11 +37,38 @@ func main() {
 	// initialize components (these function will log.Fatal on error)
 	log.Println("Launching U9K server ...")
 	config.Init()
+	genericInit()
 	db.Init(*forceMigrationVersion)
 	storage.Init()
 	schedules.Init()
 	render.Init(*reloadTemplates)
 	api.Init()
+}
+
+// performs generic initialization functions
+// exits the main thread on error
+func genericInit() {
+	// make sure we have a working tempdir, because:
+	// os.TempDir(): The directory is neither guaranteed to exist nor have accessible permissions.
+	tempDir := os.TempDir()
+	if err := os.MkdirAll(tempDir, 1777); err != nil {
+		log.Fatalf("Failed to create temporary directory %s: %s", tempDir, err)
+	}
+	tempFile, err := ioutil.TempFile("", "genericInit_")
+	if err != nil {
+		log.Fatalf("Failed to create tempFile: %s", err)
+	}
+	_, err = fmt.Fprintf(tempFile, "Hello, World!")
+	if err != nil {
+		log.Fatalf("Failed to write to tempFile: %s", err)
+	}
+	if err := tempFile.Close(); err != nil {
+		log.Fatalf("Failed to close tempFile: %s", err)
+	}
+	if err := os.Remove(tempFile.Name()); err != nil {
+		log.Fatalf("Failed to delete tempFile: %s", err)
+	}
+	log.Printf("Using temporary directory %s", tempDir)
 }
 
 // performs a GET request against /health/ and returns an error, if any
