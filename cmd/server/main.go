@@ -74,7 +74,11 @@ func genericInit() {
 // performs a GET request against /health/ and returns an error, if any
 func healthcheck() {
 	url := fmt.Sprintf("http://%s:%s/health/", os.Getenv("U9K_LISTEN_ADDR"), os.Getenv("U9K_PORT"))
-	resp, err := http.Get(url)
+	// set low timeout on the health endpoint to detect responsiveness
+	client := &http.Client{
+		Timeout: 1 * time.Second,
+	}
+	resp, err := client.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
