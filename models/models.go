@@ -67,7 +67,6 @@ func (f *File) ToJson() string {
 	return string(buf)
 }
 
-// TODO: write test
 func (f *File) PrettyExpiresIn() string {
 	d := time.Duration(f.Expire)
 	if d.Seconds() == 0 {
@@ -80,12 +79,10 @@ func (f *File) PrettyExpiresIn() string {
 	return str
 }
 
-// TODO: write test
 func (f *File) PrettyFileSize() string {
 	return byteCountIEC(f.Size)
 }
 
-// TODO: write test
 // from https://yourbasic.org/golang/formatting-byte-size-to-human-readable-format/
 func byteCountIEC(b int64) string {
 	const unit = 1024

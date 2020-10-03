@@ -57,7 +57,7 @@ func isValidUrl(str string) bool {
 func isValidLinkId(str string) bool {
 	match, err := regexp.MatchString(validLinkRegex, str)
 	if err != nil {
-		log.Printf("Regex %s error: %s\n", err)
+		log.Printf("Regex error: %s\n", err)
 	}
 	// in case of error, "match" is always "false"
 	return match
