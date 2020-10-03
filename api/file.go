@@ -42,6 +42,10 @@ func postFileHandler(w http.ResponseWriter, r *http.Request) {
 		httpError2(w, r, 400, "Invalid format in 'expire' field")
 		return
 	}
+	if expire > time.Duration(time.Hour*24*366) { // maximum one year
+		httpError2(w, r, 400, "Expiry time too large (max. one year)")
+		return
+	}
 
 	file := new(models.File)
 	file.Name = fh.Filename
