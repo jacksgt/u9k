@@ -59,6 +59,14 @@ func Init() {
 
 	S3Endpoint = os.Getenv("U9K_S3_ENDPOINT")
 	// defaults to AWS
+
+	SmtpHostPort = os.Getenv("U9K_SMTP_HOSTPORT")
+	SmtpUser = os.Getenv("U9K_SMTP_USER")
+	SmtpPassword = os.Getenv("U9K_SMTP_PASSWORD")
+	if SmtpHostPort == "" || SmtpUser == "" || SmtpPassword == "" {
+		log.Printf("Warning: no SMTP configuration found in environment, email sending disabled")
+		SmtpDisabled = true
+	}
 }
 
 var BaseUrl string
@@ -69,3 +77,7 @@ var S3AccessKey string
 var S3SecretKey string
 var S3Bucket string
 var S3Endpoint string
+var SmtpHostPort string
+var SmtpUser string
+var SmtpPassword string
+var SmtpDisabled bool

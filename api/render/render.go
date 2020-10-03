@@ -1,6 +1,8 @@
 package render
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -10,6 +12,7 @@ import (
 	"strings"
 
 	"u9k/config"
+	"u9k/email"
 	"u9k/models"
 	"u9k/types"
 )
@@ -115,12 +118,53 @@ func Index(w http.ResponseWriter) {
 	execTemplate(w, "index.html", data)
 }
 
-func Mail(w http.ResponseWriter, m *types.MailContent) (string, error) {
+func renderMail(m *types.MailContent) (string, error) {
 	data := M{
 		"Config": appConfig,
 		"Mail":   m,
 	}
-	execTemplate(w, "mail.html", data)
-	// TODO
-	return "", nil
+	var renderedHtml bytes.Buffer
+	buf := bufio.NewWriter(&renderedHtml)
+	err := execTemplate(buf, "mail.html", data)
+	if err != nil {
+		return "", nil
+	}
+	str := renderedHtml.String()
+	if str == "" || str == "<nil>" {
+		return "", errors.New("Failed to generate email template, received: " + str)
+	}
+	return str, nil
+}
+
+func FileMail(fromName string, f *models.File) (*email.Wrapper, error) {
+	var err error
+	var ew email.Wrapper
+	ew.Subject = fmt.Sprintf("File %s available for download", f.Name)
+
+	ew.PlainBody = fmt.Sprintf(`
+Hello, %s wants to share a file with you!
+
+%s has uploaded \"%s\" and shared it with you.
+The file availability will expire in %s.
+
+Click the following link to download the file:
+%s
+
+-----
+%s`,
+		fromName, fromName, f.Name, f.PrettyExpiresIn(), f.ExportLink(), config.BaseUrl)
+
+	ew.HtmlBody, err = renderMail(&types.MailContent{
+		Summary:     fmt.Sprintf("%s wants to share a file with you", fromName),
+		Heading:     fmt.Sprintf("%s wants to share a file with you", fromName),
+		ContentHtml: template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br><br>Click the following link to download the file:<br>", fromName, f.Name, f.PrettyExpiresIn())),
+		ButtonUrl:   f.ExportLink(),
+		ButtonName:  "Download",
+	})
+	if err != nil {
+		log.Printf("Failed to render email template: %s", err)
+		return nil, err
+	}
+
+	return &ew, nil
 }

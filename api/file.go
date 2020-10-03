@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -101,4 +102,45 @@ func getFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	render.PreviewFile(w, r, file)
 	return
+}
+
+func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		httpError(w, "Bad Request", 400)
+		return
+	}
+
+	toEmail := r.FormValue("to_email")
+	fromName := r.FormValue("from_name")
+	if toEmail == "" || fromName == "" {
+		httpError(w, "Bad Request", 400)
+		return
+	}
+
+	fileId := chi.URLParam(r, "fileId")
+	file := db.GetFile(fileId)
+	if file == nil {
+		httpError(w, "Not Found", 404)
+		return
+	}
+
+	ew, err := render.FileMail(fromName, file)
+	if err != nil {
+		log.Printf("%s", err)
+		return
+	}
+
+	// for debugging the HTML template:
+	// fmt.Fprintf(w, "%s", ew.HtmlBody)
+	// fmt.Fprintf(w, "%v", ew)
+
+	err = ew.SendTo(toEmail)
+	if err != nil {
+		log.Printf("Failed to send email to %s: %s", toEmail, err)
+		httpError(w, "Internal Server Error", 500)
+		return
+	}
+
+	fmt.Fprintf(w, "OK\n")
 }

@@ -15,3 +15,5 @@ Programming Languages: Go, Javascript
 Database: [CockroachDB](https://www.cockroachlabs.com/product/)
 
 Templates: [Go stdlib html/template](https://godoc.org/pkg/html/template), see `templates` directory. Templates with `_` prefix are partials, all others are root pages.
+
+Email SMTP Service: [Postale.io](https://postale.io/)

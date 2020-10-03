@@ -40,6 +40,7 @@ func Init() {
 		r.Use(httprate.Limit(1, 1*time.Second))
 		r.Post("/link/", postLinkHandler)
 		r.Post("/file/", postFileHandler)
+		r.Post("/file/{fileId}/email", sendFileEmailHandler)
 	})
 	r.Get("/link/{linkId}", previewLinkHandler)
 	r.Get("/file/{fileId}", getFileHandler)
