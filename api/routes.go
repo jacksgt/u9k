@@ -16,18 +16,17 @@ import (
 
 func Init() {
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
 
+	// static files
 	staticFS := http.FileServer(http.Dir("./static/"))
 	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static", staticFS).ServeHTTP(w, r)
 	})
-
-	// to avoid lookups to the database which result in 404 anyway
 	r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "/static/icons/favicon.ico")
 		return
 	})
+	// to avoid lookups to the database which result in 404 anyway
 	r.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 		// do not index anything else than the main site
 		fmt.Fprintf(w, "User-agent: *\nDisallow: /\nAllow: /index.html\nAllow: /$\n")
@@ -36,15 +35,21 @@ func Init() {
 
 	r.Get("/health/", healthHandler)
 	r.Group(func(r chi.Router) {
-		// limit endpoints in this group to one request per second
-		r.Use(httprate.Limit(1, 1*time.Second))
-		r.Post("/link/", postLinkHandler)
-		r.Post("/file/", postFileHandler)
-		r.Post("/file/{fileId}/email", sendFileEmailHandler)
+		// endpoints in this grouped are logged
+		r.Use(middleware.Logger)
+
+		r.Group(func(r chi.Router) {
+			// limit endpoints in this group to one request per second
+			r.Use(httprate.Limit(1, 1*time.Second))
+			r.Post("/link/", postLinkHandler)
+			r.Post("/file/", postFileHandler)
+			r.Post("/file/{fileId}/email", sendFileEmailHandler)
+		})
+		r.Get("/link/{linkId}", previewLinkHandler)
+		r.Get("/file/{fileId}", getFileHandler)
+		r.Get("/{linkId}", getLinkHandler)
+
 	})
-	r.Get("/link/{linkId}", previewLinkHandler)
-	r.Get("/file/{fileId}", getFileHandler)
-	r.Get("/{linkId}", getLinkHandler)
 	r.Get("/", indexHandler)
 	r.Get("/index.html", indexHandler)
 
