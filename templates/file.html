@@ -13,7 +13,15 @@
           <br>
           <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">
             "{{ .File.Name }}"
-            <br>
+          </a>
+          <br>
+          {{ $size := .File.PrettyFileSize }}
+          {{ if ne $size "0 B" }}
+          ({{ $size }})
+          <br>
+          {{ end }}
+
+          <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">
             <svg>
               <use href="#symbol_file-download"></use>
             </svg>

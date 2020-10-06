@@ -51,4 +51,11 @@ func TestPrettyFileSize(t *testing.T) {
 	if got != want {
 		t.Errorf("PrettyFileSize incorrect, got: %s, want: %s.", got, want)
 	}
+
+	f.Size = 0
+	got = f.PrettyFileSize()
+	want = "0 B"
+	if got != want {
+		t.Errorf("PrettyFileSize incorrect, got: %s, want: %s.", got, want)
+	}
 }
