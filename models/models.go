@@ -46,11 +46,12 @@ func (l *Link) ToJson() string {
 
 // FILE DEFINITIONS
 type File struct {
-	Base                  // inherit from Base
-	Name   string         `json:"filename"`
-	Type   string         `json:"filetype"`
-	Size   int64          `json:"filesize"`
-	Expire types.Duration `json:"expire"`
+	Base                      // inherit from Base
+	Name       string         `json:"filename"`
+	Type       string         `json:"filetype"`
+	Size       int64          `json:"filesize"`
+	Expire     types.Duration `json:"expire"`
+	EmailsSent int16          `json:"emails_sent"`
 }
 
 func (f *File) ExportLink() string {

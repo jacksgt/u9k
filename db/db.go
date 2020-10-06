@@ -117,9 +117,9 @@ func GetFile(id string) *models.File {
 	var expire time.Duration
 	file := new(models.File)
 	err := pool.QueryRow(context.Background(),
-		"SELECT id, filename, filetype, filesize, create_ts, counter, expire FROM files WHERE id = $1",
+		"SELECT id, filename, filetype, filesize, create_ts, counter, expire, emails_sent FROM files WHERE id = $1",
 		id,
-	).Scan(&file.Id, &file.Name, &file.Type, &file.Size, &file.CreateTimestamp, &file.Counter, &expire)
+	).Scan(&file.Id, &file.Name, &file.Type, &file.Size, &file.CreateTimestamp, &file.Counter, &expire, &file.EmailsSent)
 	if err != nil {
 		log.Printf("Failed to retrieve file %s from DB: %s\n", id, err)
 		return nil
@@ -143,7 +143,7 @@ func DeleteFile(id string) error {
 func GetExpiredFiles() ([]models.File, error) {
 	files := make([]models.File, 0)
 	rows, err := pool.Query(context.Background(),
-		"SELECT id, filename, filetype, create_ts, counter, expire FROM files WHERE create_ts + expire < NOW()",
+		"SELECT id, filename, filetype, create_ts, counter, expire, emails_sent FROM files WHERE create_ts + expire < NOW()",
 	)
 	if err != nil {
 		return files, err
@@ -153,7 +153,7 @@ func GetExpiredFiles() ([]models.File, error) {
 	for rows.Next() {
 		var expire time.Duration
 		var file models.File
-		err := rows.Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &expire)
+		err := rows.Scan(&file.Id, &file.Name, &file.Type, &file.CreateTimestamp, &file.Counter, &expire, &file.EmailsSent)
 		if err != nil {
 			if err == pgx.ErrNoRows {
 				return files, nil
@@ -165,6 +165,19 @@ func GetExpiredFiles() ([]models.File, error) {
 	}
 
 	return files, nil
+}
+
+func IncreaseFileEmailsSent(id string, n int64) (int64, error) {
+	err := pool.QueryRow(context.Background(),
+		"UPDATE files SET emails_sent = emails_sent + $1 WHERE id = $2 RETURNING emails_sent",
+		n,
+		id,
+	).Scan(&n)
+	if err != nil {
+		log.Printf("Failed to increase emails_sent to %d for %s: %s\n", n, id, err)
+	}
+
+	return n, err
 }
 
 func IncrementLinkCounter(id string) int64 {

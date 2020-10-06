@@ -16,6 +16,8 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const MAX_EMAILS = 1
+
 func postFileHandler(w http.ResponseWriter, r *http.Request) {
 	// get the file from the form (name should be "file")
 	fh := extractFormFileHeader("file", r)
@@ -129,6 +131,11 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if file.EmailsSent >= MAX_EMAILS {
+		httpError(w, "Too Many Requests", 429)
+		return
+	}
+
 	ew, err := render.FileMail(fromName, file)
 	if err != nil {
 		log.Printf("%s", err)
@@ -145,6 +152,8 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 		httpError(w, "Internal Server Error", 500)
 		return
 	}
+
+	db.IncreaseFileEmailsSent(file.Id, 1)
 
 	fmt.Fprintf(w, "OK\n")
 }
