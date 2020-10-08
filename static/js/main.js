@@ -149,8 +149,9 @@ function fileWidget() {
     const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
 
     function displaySelectedFile(file) {
-        // TODO: sanitize file handling
-        _query("#file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
+        if (file && 'name' in file && 'size' in file) {
+            _query("#file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
+        }
     }
 
     function fileSelectHandler(e) {
@@ -223,7 +224,7 @@ function fileWidget() {
                     inputForm.style.display = "none";
                     // // save in local storage
                     // localSaveLink(obj);
-                    // TODO
+                    // TODO: implement recent file list
                     break;
 
                 default:
