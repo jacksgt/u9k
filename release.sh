@@ -4,6 +4,13 @@ set -e
 
 version="$1"
 
+if echo "$version" | grep '^v[[:digit:]+]\.[[:digit:]+]\.[[:digit:]+]$'; then
+    echo "Releasing version '$version'"
+else
+    echo "Invalid release tag '$version'"
+    exit 1
+fi
+
 if [ $(git diff --cached | wc -l) != '0' ]; then
     echo "You have staged changes! Aborting release"
     exit 1
