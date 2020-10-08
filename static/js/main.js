@@ -136,9 +136,11 @@ function populateLinkList() {
 
 function fileWidget() {
     let uploadFiles = [];
-    const form = _query('#file-form');
+    const inputForm = _query('#file-input-form');
+    const outputForm = _query('#file-output-form');
     const fileWrapper = _query("#file-wrapper");
-    const submitButton = form.submit;
+    const submitButton = inputForm.submit;
+    const sendEmailButton = outputForm.send;
     const fakeFileSelect = _query("#fake-file-input");
     const filePreviewWrapper = _query("#file-preview-wrapper");
 
@@ -176,12 +178,12 @@ function fileWidget() {
         fakeFileSelect.click();
     }, false);
 
-    form.addEventListener('submit', (event) => {
+    inputForm.addEventListener('submit', (event) => {
         // disable default action
         event.preventDefault();
 
         if (uploadFiles.length <= 0) {
-            form.querySelector("legend").innerHTML = "Please select a file before submitting:"
+            inputForm.querySelector("legend").innerHTML = "Please select a file before submitting:"
             console.log("ERROR: no file specified");
             return
         }
@@ -193,12 +195,12 @@ function fileWidget() {
         // prepare form data
         let data = new FormData();
         data.append("file", uploadFiles[0]);
-        data.append("expire", form.expire.value);
+        data.append("expire", inputForm.expire.value);
 
         // set up event handlers
         xhr.upload.addEventListener("progress", (e) => {
             let percent = Math.round(e.loaded / e.total * 100) || 100;
-            form.submit.value = `${percent} %`;
+            inputForm.submit.value = `${percent} %`;
         });
         xhr.addEventListener("load", () => {
             console.log(xhr.responseText);
@@ -208,16 +210,14 @@ function fileWidget() {
                     const obj = JSON.parse(xhr.responseText);
                     const link = obj.link;
                     console.log(obj, link);
-                    // change button style and text
-                    form.querySelector("legend").innerHTML = "Your file is now available under the following URL:"
                     // show new URL and QR code
-                    form.querySelector(".output-form-part").style.display = "block";
-                    const field = form.outputUrl;
+                    outputForm.style.display = "block";
+                    const field = outputForm.outputUrl;
                     field.value = link;
                     selectAndCopy(field);
-                    showQrCode(form.querySelector(".form-qr-code"), link)
+                    showQrCode(outputForm.querySelector(".form-qr-code"), link)
                     // hide original form (input and submit)
-                    form.querySelector(".input-form-part").style.display = "none";
+                    inputForm.style.display = "none";
                     // // save in local storage
                     // localSaveLink(obj);
                     // TODO
@@ -228,7 +228,7 @@ function fileWidget() {
                     // change button style and text
                     submitButton.classList.add('pure-button-warning');
                     submitButton.value = "Try again";
-                    form.querySelector("legend").innerHTML = xhr.responseText;
+                    inputForm.querySelector("legend").innerHTML = xhr.responseText;
                     break;
                 }
             }
@@ -238,6 +238,49 @@ function fileWidget() {
             // change button style and text
             submitButton.classList.add('pure-button-warning');
             submitButton.value = "Error!";
+        });
+
+        // send request
+        xhr.send(data);
+    });
+
+    outputForm.addEventListener('submit', (event) => {
+        // disable default action
+        event.preventDefault();
+
+        // configure a request
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', outputForm.outputUrl.value + '/email');
+
+        // prepare form data
+        let data = new FormData(outputForm);
+        // data.append("to_email", outputForm.to_name);
+        // data.append("from_name", outputForm.from_email);
+
+        // set up event handlers
+        xhr.addEventListener("load", () => {
+            console.log(xhr.responseText);
+            if (xhr.readyState == 4) {
+                switch (xhr.status) {
+                case 200:
+                    outputForm.send.value = "Done";
+                    break;
+                default:
+                    console.log("ERROR:", xhr);
+                    // change button style and text
+                    const button = outputForm.send;
+                    button.classList.add('pure-button-warning');
+                    button.value = "Error!";
+                    break;
+                }
+            }
+        });
+        xhr.addEventListener("error", () => {
+            console.log("ERROR:", xhr);
+            // change button style and text
+            const button = outputForm.send;
+            button.classList.add('pure-button-warning');
+            button.value = "Error!";
         });
 
         // send request

@@ -111,16 +111,10 @@ func getFileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		httpError(w, "Bad Request", 400)
-		return
-	}
-
-	toEmail := r.FormValue("to_email")
-	fromName := r.FormValue("from_name")
+	toEmail := r.PostFormValue("to_email")
+	fromName := r.PostFormValue("from_name")
 	if toEmail == "" || fromName == "" {
-		httpError(w, "Bad Request", 400)
+		httpError(w, "Bad Request - missing to_email or from_name field", 400)
 		return
 	}
 
