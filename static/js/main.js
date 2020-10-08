@@ -136,13 +136,17 @@ function populateLinkList() {
 
 function fileWidget() {
     let uploadFiles = [];
+
     const inputForm = _query('#file-input-form');
-    const outputForm = _query('#file-output-form');
     const fileWrapper = _query("#file-wrapper");
-    const submitButton = inputForm.submit;
-    const sendEmailButton = outputForm.send;
+    const inputSubmitButton = inputForm.submit;
     const fakeFileSelect = _query("#fake-file-input");
     const filePreviewWrapper = _query("#file-preview-wrapper");
+
+    const outputForm = _query('#file-output-form');
+    const outputField = outputForm.outputUrl;
+    const sendEmailButton = outputForm.send;
+    const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
 
     function displaySelectedFile(file) {
         // TODO: sanitize file handling
@@ -200,7 +204,7 @@ function fileWidget() {
         // set up event handlers
         xhr.upload.addEventListener("progress", (e) => {
             let percent = Math.round(e.loaded / e.total * 100) || 100;
-            inputForm.submit.value = `${percent} %`;
+            inputSubmitButton.value = `${percent} %`;
         });
         xhr.addEventListener("load", () => {
             console.log(xhr.responseText);
@@ -212,10 +216,9 @@ function fileWidget() {
                     console.log(obj, link);
                     // show new URL and QR code
                     outputForm.style.display = "block";
-                    const field = outputForm.outputUrl;
-                    field.value = link;
-                    selectAndCopy(field);
-                    showQrCode(outputForm.querySelector(".form-qr-code"), link)
+                    outputField.value = link;
+                    selectAndCopy(outputField);
+                    showQrCode(qrCodeWrapper, link)
                     // hide original form (input and submit)
                     inputForm.style.display = "none";
                     // // save in local storage
@@ -226,8 +229,8 @@ function fileWidget() {
                 default:
                     console.log("ERROR:", xhr);
                     // change button style and text
-                    submitButton.classList.add('pure-button-warning');
-                    submitButton.value = "Try again";
+                    inputSubmitButton.classList.add('pure-button-warning');
+                    inputSubmitButton.value = "Try again";
                     inputForm.querySelector("legend").innerHTML = xhr.responseText;
                     break;
                 }
@@ -236,8 +239,8 @@ function fileWidget() {
         xhr.addEventListener("error", () => {
             console.log("ERROR:", xhr);
             // change button style and text
-            submitButton.classList.add('pure-button-warning');
-            submitButton.value = "Error!";
+            inputSubmitButton.classList.add('pure-button-warning');
+            inputSubmitButton.value = "Error!";
         });
 
         // send request
@@ -289,7 +292,12 @@ function fileWidget() {
 }
 
 function linkWidget() {
-    const linkForm = _query('#link-form');
+    const linkInputForm = _query('#link-input-form');
+    const inputSubmitButton = linkInputForm.submit;
+
+    const outputForm = _query('#link-output-form');
+    const outputField = outputForm.outputUrl;
+    const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
 
     function submitHandler(event) {
         // disable default action
@@ -300,7 +308,7 @@ function linkWidget() {
         xhr.open('POST', '/link/');
 
         // prepare form data
-        let data = new FormData(linkForm);
+        let data = new FormData(linkInputForm);
 
         // set up event handlers
         //xhr.addEventListener("progress", () => {});
@@ -311,16 +319,13 @@ function linkWidget() {
                 case 200:
                     const obj = JSON.parse(xhr.responseText);
                     const link = obj.link;
-                    // change button style and text
-                    linkForm.querySelector("legend").innerHTML = "Your link is now available under the following URL:"
                     // show new URL and QR code
-                    linkForm.querySelector(".output-form-part").style.display = "block";
-                    const field = linkForm.outputUrl;
-                    field.value = link;
-                    selectAndCopy(field);
-                    showQrCode(linkForm.querySelector(".form-qr-code"), link)
+                    outputForm.style.display = "block";
+                    outputField.value = link;
+                    selectAndCopy(outputField);
+                    showQrCode(qrCodeWrapper, link)
                     // hide input form part (url and submit)
-                    linkForm.querySelector(".input-form-part").style.display = "none";
+                    linkInputForm.style.display = "none";
                     // save in local storage
                     localSaveLink(obj);
                     break;
@@ -328,10 +333,9 @@ function linkWidget() {
                 default:
                     console.log("ERROR:", xhr);
                     // change button style and text
-                    const button = linkForm.submit;
-                    button.classList.add('pure-button-warning');
-                    button.value = "Try again";
-                    linkForm.querySelector("legend").innerHTML = xhr.responseText;
+                    inputSubmitButton.classList.add('pure-button-warning');
+                    inputSubmitButton.value = "Try again";
+                    linkInputForm.querySelector("legend").innerHTML = xhr.responseText;
                     break;
                 }
             }
@@ -339,16 +343,15 @@ function linkWidget() {
         xhr.addEventListener("error", () => {
             console.log("ERROR:", xhr);
             // change button style and text
-            const button = linkForm.submit;
-            button.classList.add('pure-button-warning');
-            button.value = "Error!";
+            inputSubmitButton.classList.add('pure-button-warning');
+            inputSubmitButton.value = "Error!";
         });
 
         // send request
         xhr.send(data);
     }
 
-    linkForm.addEventListener('submit', submitHandler);
+    linkInputForm.addEventListener('submit', submitHandler);
 }
 
 /* register all event handlers */
