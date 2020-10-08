@@ -121,6 +121,10 @@ a {
     font-family: monospace;
 }
 
+.output-form {
+    display: none; /* hide on initial page load */
+}
+
 /* input tooltip */
 [data-tip] {
     position: relative;
