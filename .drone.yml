@@ -3,6 +3,26 @@ type: docker
 name: default
 
 steps:
+- name: Test and build binary
+  image: golang:1.15-buster
+  commands:
+    - 'go build u9k/cmd/server/'
+    - 'go test ./...'
+
+- name: Build and publish container image
+  image: banzaicloud/drone-kaniko
+  settings:
+    repo: jacksgt/u9k
+    tags:
+      - ${DRONE_TAG}
+    username:
+      from_secret: dockerhub_username
+    password:
+      from_secret: dockerhub_password
+  when:
+    ref:
+      - refs/tags/*
+
 - name: Push to GitHub
   image: appleboy/drone-git-push
   settings:
@@ -11,3 +31,6 @@ steps:
     followtags: true
     ssh_key:
       from_secret: github_private_key
+  when:
+    branch:
+      - master
