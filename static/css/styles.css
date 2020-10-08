@@ -109,15 +109,12 @@ a {
 
 .pure-form .form-qr-code {
     display: none;
-    padding: 2em;
+    padding: 1em;
 }
 
 .pure-form .form-qr-code img {
     margin: auto;
-}
-
-.pure-form .output-form-part {
-    display: none;
+    width: 192px; // hardcoded size, but seems to work on all screen sizes anyway
 }
 
 .pure-form .output-url {

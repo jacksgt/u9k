@@ -33,11 +33,11 @@ function showQrCode(element, data) {
 
     const qrcode = new QRCode(element, {
 	    text: data,
-	    // width: 128,
-	    // height: 128,
+	    // width: 256,
+	    // height: 256,
 	    // colorDark : "#000000",
 	    // colorLight : "#ffffff",
-	    // correctLevel : QRCode.CorrectLevel.H
+	    correctLevel : QRCode.CorrectLevel.M,
     });
 
     setTimeout(function(){ // small delay until QR code is ready
