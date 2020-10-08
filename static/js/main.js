@@ -266,14 +266,14 @@ function fileWidget() {
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
                 case 200:
-                    outputForm.send.value = "Done";
+                    sendEmailButton.value = "Done!";
+                    sendEmailButton.classList.add('pure-button-ok');
                     break;
                 default:
                     console.log("ERROR:", xhr);
                     // change button style and text
-                    const button = outputForm.send;
-                    button.classList.add('pure-button-warning');
-                    button.value = "Error!";
+                    sendEmailButton.classList.add('pure-button-warning');
+                    sendEmailButton.value = "Error!";
                     break;
                 }
             }
@@ -281,9 +281,8 @@ function fileWidget() {
         xhr.addEventListener("error", () => {
             console.log("ERROR:", xhr);
             // change button style and text
-            const button = outputForm.send;
-            button.classList.add('pure-button-warning');
-            button.value = "Error!";
+            sendEmailButton.classList.add('pure-button-warning');
+            sendEmailButton.value = "Error!";
         });
 
         // send request
