@@ -18,6 +18,7 @@ COPY --from=builder /u9k/static/ /static
 COPY --from=builder /u9k/templates/ /templates
 COPY --from=builder /u9k/migrations/ /migrations
 COPY --from=builder /etc/nsswitch.conf /etc/nsswitch.conf
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 ENV U9K_LISTEN_ADDR=0.0.0.0 \
     U9K_PORT=3000
 HEALTHCHECK CMD ["/server", "-runHealthCheck"]
