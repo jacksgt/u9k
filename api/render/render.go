@@ -1,7 +1,6 @@
 package render
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -95,7 +94,7 @@ func RedirectLinkPage(w http.ResponseWriter, r *http.Request, link *models.Link)
 	execTemplate(w, "link.html", data)
 }
 
-func RedirectLink(w http.ResponseWriter, r *http.Request, url string) {
+func RedirectTo(w http.ResponseWriter, r *http.Request, url string) {
 	w.Header().Set("Location", url)
 	w.WriteHeader(302)
 
@@ -124,8 +123,7 @@ func renderMail(m *types.MailContent) (string, error) {
 		"Mail":   m,
 	}
 	var renderedHtml bytes.Buffer
-	buf := bufio.NewWriter(&renderedHtml)
-	err := execTemplate(buf, "mail.html", data)
+	err := execTemplate(io.Writer(&renderedHtml), "mail.html", data)
 	if err != nil {
 		return "", nil
 	}
@@ -136,7 +134,7 @@ func renderMail(m *types.MailContent) (string, error) {
 	return str, nil
 }
 
-func FileMail(fromName string, f *models.File) (*email.Wrapper, error) {
+func FileMail(fromName string, f *models.File, subscribeUrl string) (*email.Wrapper, error) {
 	var err error
 	var ew email.Wrapper
 	ew.Subject = fmt.Sprintf("File %s available for download", f.Name)
@@ -151,15 +149,19 @@ Click the following link to download the file:
 %s
 
 -----
-%s`,
-		fromName, fromName, f.Name, f.PrettyExpiresIn(), f.ExportLink(), config.BaseUrl)
+%s
+
+To unsubscribe from future emails, please visit this link: %s
+`,
+		fromName, fromName, f.Name, f.PrettyExpiresIn(), f.ExportLink(), config.BaseUrl, subscribeUrl)
 
 	ew.HtmlBody, err = renderMail(&types.MailContent{
-		Summary:     fmt.Sprintf("%s wants to share a file with you", fromName),
-		Heading:     fmt.Sprintf("%s wants to share a file with you", fromName),
-		ContentHtml: template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br><br>Click the following link to download the file:<br>", fromName, f.Name, f.PrettyExpiresIn())),
-		ButtonUrl:   f.ExportLink(),
-		ButtonName:  "Download",
+		Summary:      fmt.Sprintf("%s wants to share a file with you", fromName),
+		Heading:      fmt.Sprintf("%s wants to share a file with you", fromName),
+		ContentHtml:  template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br><br>Click the following link to download the file:<br>", fromName, f.Name, f.PrettyExpiresIn())),
+		ButtonUrl:    f.ExportLink(),
+		ButtonName:   "Download",
+		SubscribeUrl: subscribeUrl,
 	})
 	if err != nil {
 		log.Printf("Failed to render email template: %s", err)
@@ -167,4 +169,12 @@ Click the following link to download the file:
 	}
 
 	return &ew, nil
+}
+
+func EmailSubscribePage(w http.ResponseWriter, m types.Email) {
+	data := M{
+		"Config": appConfig,
+		"Email":  m,
+	}
+	execTemplate(w, "subscribe.html", data)
 }

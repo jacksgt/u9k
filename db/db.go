@@ -219,6 +219,71 @@ func IncrementCounter(typ string, id string) int64 {
 	return counter
 }
 
+func GetEmail(subscribeLink string) (m types.Email, err error) {
+	err = pool.QueryRow(context.Background(),
+		"SELECT address, subscribe_link, unsubscribed FROM email_list WHERE subscribe_link = $1",
+		subscribeLink,
+	).Scan(&m.Address, &m.SubscribeLink, &m.Unsubscribed)
+
+	if err != nil {
+		log.Printf("Failed to get email: %s\n", err)
+		return m, err
+	}
+
+	return m, nil
+}
+
+func SaveEmail(m *types.Email) (err error) {
+	if m.SubscribeLink == "" {
+		// create a new entry in db
+		err = pool.QueryRow(context.Background(),
+			"INSERT INTO email_list (address, unsubscribed) VALUES ($1, $2) RETURNING subscribe_link, unsubscribed",
+			m.Address,
+			m.Unsubscribed,
+		).Scan(&m.SubscribeLink, &m.Unsubscribed)
+	} else {
+		// update the existing entry
+		err = pool.QueryRow(context.Background(),
+			"UPDATE email_list SET unsubscribed = $2 WHERE subscribe_link = $1 RETURNING subscribe_link, unsubscribed",
+			m.SubscribeLink,
+			m.Unsubscribed,
+		).Scan(&m.SubscribeLink, &m.Unsubscribed)
+	}
+	if err != nil {
+		log.Printf("Failed to update email: %s\n", err)
+		return err
+	}
+
+	return nil
+}
+
+// GetEmailSubscribeLink returns the unique subscription ID for the specified email address
+// If the email address does not exist in the database yet, it will be created
+// When this function returns "" for subscribeLink, THE EMAIL SHALL NOT BE SENT TO THE USER
+func GetEmailSubscribeLink(emailTo string) (subscribeLink string, err error) {
+	m := types.Email{
+		Address: emailTo,
+	}
+	err = pool.QueryRow(context.Background(),
+		"SELECT subscribe_link, unsubscribed FROM email_list WHERE address = $1",
+		m.Address,
+	).Scan(&m.SubscribeLink, &m.Unsubscribed)
+	if err == pgx.ErrNoRows {
+		// need to create a new entry in the database
+		err = SaveEmail(&m)
+	}
+	if err != nil {
+		log.Printf("Failed to generate subscribe link: %s\n", err)
+		return "", err
+	}
+
+	if m.Unsubscribed {
+		return "", nil
+	}
+
+	return m.SubscribeLink, nil
+}
+
 // from https://stackoverflow.com/a/31832326
 const letterBytes = "abcdefghijklmnopqrstuvwxyz23456789" // omit 1 and 0 for readability
 func randStringBytesRmndr(n int) string {

@@ -289,8 +289,9 @@
                     <td style="padding: 20px; font-family: sans-serif; font-size: 12px; line-height: 15px; text-align: center;">
 						<a style="text-decoration: underline; color: #a5b1c2;" href="{{ absUrl "/" }}">U9K.de</a>
                         <br><br>
-                        <!-- TODO: unsubscribe blocklist -->
-                        <!-- <unsubscribe style="color: #ffffff; text-decoration: underline;">unsubscribe</unsubscribe> -->
+                        {{ with .Mail.SubscribeUrl }}
+						<a style="text-decoration: underline; color: #a5b1c2;" href="{{ . }}">Click to unsubscribe</a> from future emails.
+                        {{ end }}
                     </td>
                 </tr>
             </table>

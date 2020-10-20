@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "_head.html"}}
+  </head>
+  <body>
+    {{ template "_header.html" }}
+
+    <div class="content-wrapper">
+      <div class="pure-u-1 content is-center">
+        {{ if .Email.Unsubscribed }}
+        {{/* user is currently unsubscribed, give the option to subscribe again */}}
+        <h3>You are unsubscribe from u9k.de emails</h3>
+        <p>
+          At the moment, other users are not able to share with you via email. Please click the button below to enable future notifications emails.
+        </p>
+
+        <form class="pure-form" method="POST">
+          <div class="is-center">
+            <input type="email" name="email" class="pure-input-1" required readonly value="{{ .Email.Address }}">
+            <input type="text" name="unsubscribe" value="false" hidden>
+            <input type="submit" name="submit" class="pure-button pure-button-primary" value="Enable Emails">
+          </div>
+        </form>
+
+        <p>
+          You can enable or disable emails from us at any time by simply visiting <a href="?">this webpage</a>.
+        </p>
+        {{ else }}
+        {{/* user is currently subscribed, give option to unsubscribe */}}
+        <h3>Are you receiving too many emails from u9k.de?</h3>
+        <p>
+          Sorry for that. Please click the button below to unsubscribe from all future emails. Please note that other users won't be able to share with you via email anymore.
+        </p>
+
+        <form class="pure-form" method="POST">
+          <div class="is-center">
+            <input type="email" name="email" class="pure-input-1" required readonly value="{{ .Email.Address }}">
+            <input type="text" name="unsubscribe" value="true" hidden>
+            <input type="submit" name="submit" class="pure-button pure-button-primary" value="Disable Emails">
+          </div>
+        </form>
+
+        <p>
+          If you want to enable emails from us again, just visit <a href="?">this webpage</a> again.
+        </p>
+
+        {{ end }}
+      </div>
+    </div>
+
+    {{ template "_footer.html" . }}
+
+    {{ template "_icons.html" }}
+  </body>
+</html>

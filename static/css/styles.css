@@ -176,6 +176,7 @@ a {
 .pure-button-ok {
     background: var(--logo-green);
     font-size: 120%;
+    opacity: 1 !important;
 }
 
 /*

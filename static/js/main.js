@@ -269,6 +269,7 @@ function fileWidget() {
                 case 200:
                     sendEmailButton.value = "Done!";
                     sendEmailButton.classList.add('pure-button-ok');
+                    sendEmailButton.disabled = true; // to make sure user does not click multiple times
                     break;
                 default:
                     console.log("ERROR:", xhr);

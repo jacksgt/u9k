@@ -45,6 +45,8 @@ func Init() {
 			r.Post("/file/", postFileHandler)
 			r.Post("/file/{fileId}/email", sendFileEmailHandler)
 		})
+		r.Get("/email/{emailLink}", getEmailHandler)
+		r.Post("/email/{emailLink}", postEmailHandler)
 		r.Get("/link/{linkId}", previewLinkHandler)
 		r.Get("/file/{fileId}", getFileHandler)
 		r.Get("/{linkId}", getLinkHandler)
@@ -59,4 +61,8 @@ func Init() {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	render.Index(w)
+}
+
+func subscribeUrl(subscribeLink string) string {
+	return fmt.Sprintf("%s/email/%s", config.BaseUrl, subscribeLink)
 }

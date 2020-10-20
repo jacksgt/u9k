@@ -125,12 +125,27 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check if we have already sent emails for this file
 	if file.EmailsSent >= MAX_EMAILS {
 		httpError(w, "Too Many Requests", 429)
 		return
 	}
 
-	ew, err := render.FileMail(fromName, file)
+	// check if the recipient has unsubscribed from emails
+	subscribeLink, err := db.GetEmailSubscribeLink(toEmail)
+	if err != nil {
+		log.Printf("Not allowed to send emails to %s\n", toEmail)
+		// TODO: implement a better response and make it visible to the user
+		httpError(w, "Internal Server Error", 500)
+		return
+	}
+	if subscribeLink == "" {
+		log.Printf("Aborting email request, recipient unsubscribed from emails")
+		httpError(w, "Bad Request", 400)
+		return
+	}
+
+	ew, err := render.FileMail(fromName, file, subscribeUrl(subscribeLink))
 	if err != nil {
 		log.Printf("%s", err)
 		return
