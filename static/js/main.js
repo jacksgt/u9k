@@ -208,6 +208,15 @@ function fileWidget() {
     const sendEmailButton = outputForm.send;
     const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
 
+    /* initialize the list of most recent links */
+    const fileListWrapper = _query("#file-list-wrapper");
+    const recentFiles = new RecentItems('File', fileListWrapper);
+    recentFiles.fillHtml(); // populate the table
+    /* register handler for deleting list */
+    _query("#button-clear-file-list").addEventListener('click', (event) => {
+        recentFiles.clear();
+    });
+
     function displaySelectedFile(file) {
         if (file && 'name' in file && 'size' in file) {
             _query("#file-preview-details").innerHTML = `${file.name} - ${file.size/1000} kB`;
@@ -282,13 +291,12 @@ function fileWidget() {
                     showQrCode(qrCodeWrapper, link)
                     // hide original form (input and submit)
                     inputForm.style.display = "none";
-                    // // save in local storage
-                    // localSaveLink(obj);
-                    // TODO: implement recent file list
+                    // save in local storage
+                    recentFiles.append(obj.link, obj.filename, obj.createTs);
                     break;
 
                 default:
-                    console.log("ERROR:", xhr);
+                    console.error("XHR error:", xhr);
                     // change button style and text
                     inputSubmitButton.classList.add('pure-button-warning');
                     inputSubmitButton.value = "Try again";
@@ -359,6 +367,15 @@ function linkWidget() {
     const outputForm = _query('#link-output-form');
     const outputField = outputForm.outputUrl;
     const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
+
+    /* initialize the list of most recent links */
+    const linkListWrapper = _query("#link-list-wrapper");
+    const recentLinks = new RecentItems('Link', linkListWrapper);
+    recentLinks.fillHtml(); // populate the table
+    /* register handler for deleting list */
+    _query("#button-clear-link-list").addEventListener('click', (event) => {
+        recentLinks.clear();
+    });
 
     function submitHandler(event) {
         // disable default action
