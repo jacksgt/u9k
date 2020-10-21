@@ -9,6 +9,11 @@ steps:
     - 'go build u9k/cmd/server/'
     - 'go test ./...'
 
+- name: Lint JS code
+  image: pipelinecomponents/eslint:02bbbc8
+  commands:
+    - 'eslint static/js/main.js'
+
 - name: Build and publish container image
   image: banzaicloud/drone-kaniko
   settings:
