@@ -196,20 +196,27 @@ a {
     background-color: var(--light-grey);
 }
 
-#link-list-wrapper {
+.recent-items-wrapper {
     display: none;
 }
 
-#link-list-table {
+.recent-items-table {
     width: 100%;
     table-layout: fixed;
 }
 
 /* make sure the table cells dont overflow and dont break onto a newline */
-#link-list-table td {
+.recent-items-table td {
     overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* set a maximum height for the table (by setting the height of its wrapper) */
+.recent-items-wrapper .table-height-limiter {
+	display: inline-block;
+	max-height: 15em;
+	overflow-y: scroll;
 }
 
 

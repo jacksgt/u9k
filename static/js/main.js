@@ -1,3 +1,9 @@
+/* This JavaScript code uses ECMAScript 2015 (ES6) */
+/* http://es6-features.org/ */
+
+/* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode */
+'use strict';
+
 function _query(query) {
     return document.querySelector(query);
 }
@@ -23,11 +29,11 @@ function selectAndCopy(element) {
 
 function showQrCode(element, data) {
     if (! element) {
-        console.log("showQrCode: Element is not defined. Skipping.");
+        console.warn("showQrCode: Element is not defined. Skipping.");
         return;
     }
     if (! window.QRCode) {
-        console.log("showQrCode: QRCode library not found. Skipping.");
+        console.warn("showQrCode: QRCode library not found. Skipping.");
         return;
     }
 
@@ -45,92 +51,146 @@ function showQrCode(element, data) {
     }, 100);
 }
 
-function localSaveLink(link) {
-    if (! window.localStorage) {
-        console.log("localSaveLink: Browser doesn't support localStorage. Skipping.");
-        return []
+// const linkList = new RecentItems('Link');
+class RecentItems {
+    constructor(itemName, wrapperElement) {
+        this.itemName = itemName;
+        this.wrapper = wrapperElement;
+        this.list = [];
+        if (! window.localStorage) {
+            console.warn("RecentItems: Browser doesn't support localStorage. RecentItems disabled.");
+            this.enabled = false;
+            return
+        }
+        this.enabled = true;
+        this.localStorageName = "RecentItems_" + itemName;
     }
 
-    let linkList;
-    try {
-        linkList = JSON.parse(localStorage.getItem("linkList") || '[]');
-        linkList.push(link);
-        localStorage.setItem("linkList", JSON.stringify(linkList));
-    } catch(e) {
-        console.log("localSaveLink:", e);
-    }
+    // adds a new item to the list and returns the updated list
+    append(link, data, timestamp) {
+        // localSaveLink
+        if (!this.enabled) {
+            return [];
+        }
 
-    return linkList;
-}
+        let item = {
+            link: link,
+            data: data,
+            timestamp: timestamp,
+        };
 
-function localGetLinks() {
-    if (! window.localStorage) {
-        console.log("localGetLinks: Browser doesn't support localStorage. Skipping.");
-        return []
-    }
-
-    let linkList = [];
-    try {
-        linkList = JSON.parse(localStorage.getItem("linkList") || '[]');
-    } catch(e) {
-        console.log("localGetLinks:", e);
-    }
-    return linkList;
-}
-
-function clearLinkList() {
-    const tableBody = document.querySelector('#link-list-table tbody');
-    /* iteratively remove all HTML elements from table (this method also unregisters any event handlers) */
-    while (tableBody.firstChild) {
-        tableBody.removeChild(tableBody.firstChild);
-    }
-    /* clear localStorage entry */
-    if (window.localStorage) {
-        localStorage.removeItem('linkList');
-    }
-}
-
-function populateLinkList() {
-    /* register handler for deleting list */
-    document.querySelector("#button-clear-link-list").addEventListener('click', (event) => {
-        clearLinkList();
-    })
-
-    const tableWrapper = document.querySelector("#link-list-wrapper");
-    const tableBody = tableWrapper.querySelector("tbody");
-
-    /* retrieve links stored in localStorage */
-    const linkList = localGetLinks();
-
-    /* iterate over the list in reverse-chronological order,
-       so the most recent item is at the top */
-    for (let i = linkList.length-1; i >= 0; i--) {
-        const l = linkList[i];
-        let text = "";
+        let list = [];
         try {
-            const link = l.link;
-            const prettyLink = link.split('://')[1];
-            const url = l.url;
-            const ts = l.createTs.split('T')[0] || "";
-            text = `
-              <td><a href="${link}" target="_blank">${prettyLink}</a></td>
-              <td><a href="${url}" target="_blank">${url}</a></td>
-              <td>${ts}</td>
-          `;
+            list = JSON.parse(localStorage.getItem(this.localStorageName) || '[]');
+            list.push(item);
+            localStorage.setItem(this.localStorageName, JSON.stringify(list));
         } catch(e) {
-            console.log("Error processing local link:", l, e);
-        }
-        if (text != "") {
-            let child = document.createElement('tr');
-            child.innerHTML = text;
-            tableBody.append(child);
+            console.error("RecentItems.append:", e);
         }
 
+        this.list = list;
+        return this.list;
     }
 
-    /* if there are links in the local list, show the wrapper element to the user (by default hidden) */
-    if (linkList.length > 0) {
-        tableWrapper.style.display = "block";
+    // returns all the items in the current list
+    all() {
+        // localGetLinks
+        if (!this.enabled) {
+            return [];
+        }
+
+        let list = [];
+        try {
+            list = JSON.parse(localStorage.getItem(this.localStorageName) || '[]');
+        } catch(e) {
+            console.error("RecentItems.list:", e);
+        }
+
+        this.list = list;
+        return this.list;
+    }
+
+    clear() {
+        // clearLinkList
+        if (!this.enabled) {
+            return;
+        }
+
+        const tableBody = wrapper.querySelector("tbody");
+        /* iteratively remove all HTML elements from table (this method also unregisters any event handlers) */
+        while (tableBody.firstChild) {
+            tableBody.removeChild(tableBody.firstChild);
+        }
+
+        /* clear localStorage */
+        localStorage.removeItem(this.localStorageName);
+    }
+
+    fillHtml() {
+        // partially populateLinkList
+
+        /* retrieve list from localStorage */
+        const list = this.all();
+        if (list.length <= 0) {
+            /* no items in the list, no need to do any work */
+            return;
+        }
+
+        /* fill the wrapper with boilerplate for table */
+        this.wrapper.innerHTML +=
+        `<div class="table-height-limiter">
+         <table id="${this.itemName}-list-table" class="pure-table pure-table-striped recent-items-table">
+            <thead>
+              <tr>
+                <th>Link</th>
+                <th>${this.itemName}</th>
+                <th>Creation Date</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          </div>`;
+        const tableBody = this.wrapper.querySelector("tbody");
+
+        /* iterate over the list in reverse-chronological order,
+           so the most recent item is at the top */
+        for (let i = list.length-1; i >= 0; i--) {
+            const l = list[i];
+            let row = "";
+            try {
+                // TODO: generalize this
+                const link = l.link;
+                const prettyLink = link.split('://')[1]; // strip leading https://
+                const data = l.data;
+                const ts = l.timestamp.split('T')[0] || ""; // just show the date
+                if (this.itemName == 'Link') {
+                    row = `
+                    <td><a href="${link}" target="_blank">${prettyLink}</a></td>
+                    <td><a href="${data}" target="_blank">${data}</a></td>
+                    <td>${ts}</td>`;
+                } else if (this.itemName == 'File') {
+                    row = `
+                    <td><a href="${link}" target="_blank">${prettyLink}</a></td>
+                    <td>${data}</td>
+                    <td>${ts}</td>`;
+                }
+            } catch(e) {
+                console.warn("RecentItems.fillHtml: Error processing local link:", l, e);
+            }
+
+            /* if there were no errors (row != ""), append row to table */
+            if (row.length > 0) {
+                let child = document.createElement('tr');
+                child.innerHTML = row;
+                tableBody.append(child);
+            }
+        }
+
+        /* if there are links in the local list, show the wrapper element to the user (by default hidden) */
+        if (list.length > 0) {
+            this.wrapper.style.display = "block";
+        }
     }
 }
 
@@ -189,7 +249,7 @@ function fileWidget() {
 
         if (uploadFiles.length <= 0) {
             inputForm.querySelector("legend").innerHTML = "Please select a file before submitting:"
-            console.log("ERROR: no file specified");
+            console.error("no file specified");
             return
         }
 
@@ -208,13 +268,13 @@ function fileWidget() {
             inputSubmitButton.value = `${percent} %`;
         });
         xhr.addEventListener("load", () => {
-            console.log(xhr.responseText);
+            console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
                 case 200:
                     const obj = JSON.parse(xhr.responseText);
                     const link = obj.link;
-                    console.log(obj, link);
+                    console.info(obj, link);
                     // show new URL and QR code
                     outputForm.style.display = "block";
                     outputField.value = link;
@@ -238,7 +298,7 @@ function fileWidget() {
             }
         });
         xhr.addEventListener("error", () => {
-            console.log("ERROR:", xhr);
+            console.error("XHR error:", xhr);
             // change button style and text
             inputSubmitButton.classList.add('pure-button-warning');
             inputSubmitButton.value = "Error!";
@@ -263,7 +323,7 @@ function fileWidget() {
 
         // set up event handlers
         xhr.addEventListener("load", () => {
-            console.log(xhr.responseText);
+            console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
                 case 200:
@@ -272,7 +332,7 @@ function fileWidget() {
                     sendEmailButton.disabled = true; // to make sure user does not click multiple times
                     break;
                 default:
-                    console.log("ERROR:", xhr);
+                    console.error("XHR error:", xhr);
                     // change button style and text
                     sendEmailButton.classList.add('pure-button-warning');
                     sendEmailButton.value = "Error!";
@@ -281,7 +341,7 @@ function fileWidget() {
             }
         });
         xhr.addEventListener("error", () => {
-            console.log("ERROR:", xhr);
+            console.error("XHR error:", xhr);
             // change button style and text
             sendEmailButton.classList.add('pure-button-warning');
             sendEmailButton.value = "Error!";
@@ -314,7 +374,7 @@ function linkWidget() {
         // set up event handlers
         //xhr.addEventListener("progress", () => {});
         xhr.addEventListener("load", () => {
-            console.log(xhr.responseText);
+            console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
                 case 200:
@@ -328,11 +388,11 @@ function linkWidget() {
                     // hide input form part (url and submit)
                     linkInputForm.style.display = "none";
                     // save in local storage
-                    localSaveLink(obj);
+                    recentLinks.append(obj.link, obj.url, obj.createTs);
                     break;
 
                 default:
-                    console.log("ERROR:", xhr);
+                    console.error("XHR error:", xhr);
                     // change button style and text
                     inputSubmitButton.classList.add('pure-button-warning');
                     inputSubmitButton.value = "Try again";
@@ -342,7 +402,7 @@ function linkWidget() {
             }
         });
         xhr.addEventListener("error", () => {
-            console.log("ERROR:", xhr);
+            console.error("XHR error:", xhr);
             // change button style and text
             inputSubmitButton.classList.add('pure-button-warning');
             inputSubmitButton.value = "Error!";
@@ -358,6 +418,5 @@ function linkWidget() {
 /* register all event handlers */
 window.addEventListener('load', (event) => {
     linkWidget();
-    populateLinkList();
     fileWidget();
 });
