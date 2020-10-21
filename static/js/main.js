@@ -37,14 +37,17 @@ function showQrCode(element, data) {
         return;
     }
 
+    /* legacy loading of the library, and we just checked that it exists */
+    /* eslint-disable no-undef */
     const qrcode = new QRCode(element, {
-	    text: data,
-	    // width: 256,
-	    // height: 256,
-	    // colorDark : "#000000",
-	    // colorLight : "#ffffff",
-	    correctLevel : QRCode.CorrectLevel.M,
+        text: data,
+        // width: 256,
+        // height: 256,
+        // colorDark : "#000000",
+        // colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M,
     });
+    /* eslint-enable no-undef */
 
     setTimeout(function(){ // small delay until QR code is ready
         element.style.display = "block";
@@ -60,7 +63,7 @@ class RecentItems {
         if (! window.localStorage) {
             console.warn("RecentItems: Browser doesn't support localStorage. RecentItems disabled.");
             this.enabled = false;
-            return
+            return;
         }
         this.enabled = true;
         this.localStorageName = "RecentItems_" + itemName;
@@ -116,7 +119,7 @@ class RecentItems {
             return;
         }
 
-        const tableBody = wrapper.querySelector("tbody");
+        const tableBody = this.wrapper.querySelector("tbody");
         /* iteratively remove all HTML elements from table (this method also unregisters any event handlers) */
         while (tableBody.firstChild) {
             tableBody.removeChild(tableBody.firstChild);
@@ -257,9 +260,9 @@ function fileWidget() {
         event.preventDefault();
 
         if (uploadFiles.length <= 0) {
-            inputForm.querySelector("legend").innerHTML = "Please select a file before submitting:"
+            inputForm.querySelector("legend").innerHTML = "Please select a file before submitting:";
             console.error("no file specified");
-            return
+            return;
         }
 
         // configure a request
@@ -280,7 +283,7 @@ function fileWidget() {
             console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
-                case 200:
+                case 200: {
                     const obj = JSON.parse(xhr.responseText);
                     const link = obj.link;
                     console.info(obj, link);
@@ -288,13 +291,13 @@ function fileWidget() {
                     outputForm.style.display = "block";
                     outputField.value = link;
                     selectAndCopy(outputField);
-                    showQrCode(qrCodeWrapper, link)
+                    showQrCode(qrCodeWrapper, link);
                     // hide original form (input and submit)
                     inputForm.style.display = "none";
                     // save in local storage
                     recentFiles.append(obj.link, obj.filename, obj.createTs);
                     break;
-
+                }
                 default:
                     console.error("XHR error:", xhr);
                     // change button style and text
@@ -334,11 +337,12 @@ function fileWidget() {
             console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
-                case 200:
+                case 200: {
                     sendEmailButton.value = "Done!";
                     sendEmailButton.classList.add('pure-button-ok');
                     sendEmailButton.disabled = true; // to make sure user does not click multiple times
                     break;
+                }
                 default:
                     console.error("XHR error:", xhr);
                     // change button style and text
@@ -394,20 +398,20 @@ function linkWidget() {
             console.debug(xhr.responseText);
             if (xhr.readyState == 4) {
                 switch (xhr.status) {
-                case 200:
+                case 200: {
                     const obj = JSON.parse(xhr.responseText);
                     const link = obj.link;
                     // show new URL and QR code
                     outputForm.style.display = "block";
                     outputField.value = link;
                     selectAndCopy(outputField);
-                    showQrCode(qrCodeWrapper, link)
+                    showQrCode(qrCodeWrapper, link);
                     // hide input form part (url and submit)
                     linkInputForm.style.display = "none";
                     // save in local storage
                     recentLinks.append(obj.link, obj.url, obj.createTs);
                     break;
-
+                }
                 default:
                     console.error("XHR error:", xhr);
                     // change button style and text
