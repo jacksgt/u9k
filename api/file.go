@@ -49,21 +49,23 @@ func postFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file := new(models.File)
-	file.Name = fh.Filename
-	file.Size = fh.Size
-	file.Type = getFileContentType(fd)
-	file.Expire = types.Duration(expire)
+	file := models.File{
+		Name:   fh.Filename,
+		Size:   fh.Size,
+		Type:   getFileContentType(fd),
+		Expire: types.Duration(expire),
+	}
 
 	// save metadata in the DB
-	err = db.StoreFile(file)
+	err = db.StoreFile(&file)
 	if err != nil {
 		httpError(w, "Internal Server Error", 500)
 		return
 	}
 
 	// store data in storage backend
-	err = storage.StoreFileStream(fd, file.Id, file.Type)
+	key := storage.FileKey(file.Id, file.Name)
+	err = storage.StoreFileStream(fd, key, file.Type)
 	if err != nil {
 		httpError2(w, r, 500)
 		return
@@ -89,16 +91,17 @@ func getFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.FormValue("raw") == "true" {
-		db.IncrementCounter("file", fileId)
-
-		// TODO: maybe it's better to generate a signed URL and redirect to it
+		db.IncrementCounter("file", file.Id)
 
 		// download file from backend
-		data, err := storage.GetFile(file.Id)
+		key := storage.FileKey(file.Id, file.Name)
+		data, err := storage.GetFile(key)
 		if err != nil {
 			httpError(w, "Internal Server Error", 500)
 			return
 		}
+
+		// TODO: cache this file locally for some time
 
 		// serve to client
 		rs := bytes.NewReader(data)

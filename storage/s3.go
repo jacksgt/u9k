@@ -2,10 +2,12 @@ package storage
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/rhnvrm/simples3"
 
@@ -20,7 +22,7 @@ func Init() {
 		s3.SetEndpoint(config.S3Endpoint)
 	}
 
-	// TODO: test the connection by uploading / downloading a file
+	// test the connection by uploading / downloading a file
 	// on error -> log.Fatal
 	testFile := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
 	testKey := "connection-test.txt"
@@ -43,6 +45,12 @@ func Init() {
 	log.Printf("Initialized S3 Storage Backend %s %s\n", config.S3Region, config.S3Endpoint)
 }
 
+// maybe this should just take models.File as an argument?
+// or be a method on models.File? not sure ...
+func FileKey(id string, filename string) string {
+	return fmt.Sprintf("files/%s/%s", id, filename)
+}
+
 func StoreFileStream(fd io.ReadSeeker, key string, contentType string) error {
 	// make sure we go to the beginning of the file
 	fd.Seek(0, io.SeekStart)
@@ -51,7 +59,7 @@ func StoreFileStream(fd io.ReadSeeker, key string, contentType string) error {
 		Bucket:      config.S3Bucket,
 		ObjectKey:   key,
 		ContentType: contentType,
-		FileName:    key,
+		FileName:    path.Base(key),
 		Body:        fd,
 	})
 	if err != nil {
@@ -69,7 +77,7 @@ func StoreFile(file []byte, key string) error {
 		Bucket:      config.S3Bucket,
 		ObjectKey:   key,
 		ContentType: contentType,
-		FileName:    key,
+		FileName:    path.Base(key),
 		Body:        bytes.NewReader(file),
 	})
 	if err != nil {
