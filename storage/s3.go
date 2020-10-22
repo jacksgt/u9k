@@ -22,27 +22,30 @@ func Init() {
 		s3.SetEndpoint(config.S3Endpoint)
 	}
 
-	// test the connection by uploading / downloading a file
-	// on error -> log.Fatal
+	log.Printf("Initialized S3 Storage Backend %s %s\n", config.S3Region, config.S3Endpoint)
+}
+
+// tests the connection by uploading, downloading and deleting a file
+func Check() error {
 	testFile := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
 	testKey := "connection-test.txt"
 	err := StoreFile(testFile, testKey)
 	if err != nil {
-		log.Fatalf("Failed to store file %s: %s\n", testKey, err)
+		return err
 	}
 	data, err := GetFile(testKey)
 	if err != nil {
-		log.Fatalf("Failed to get file %s: %s\n", testKey, err)
+		return err
 	}
 	if !bytesAreEqual(testFile, data) {
-		log.Fatalf("Uploaded and downloaded file differ, aborting.\n")
+		return fmt.Errorf("Uploaded and downloaded file differ, aborting.")
 	}
 	err = DeleteFile(testKey)
 	if err != nil {
-		log.Fatalf("Failed to delete file %s: %s\n", testKey, err)
+		return fmt.Errorf("Failed to delete file %s: %s", testKey, err)
 	}
 
-	log.Printf("Initialized S3 Storage Backend %s %s\n", config.S3Region, config.S3Endpoint)
+	return nil
 }
 
 // maybe this should just take models.File as an argument?

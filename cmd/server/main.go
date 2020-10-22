@@ -40,6 +40,10 @@ func main() {
 	genericInit()
 	db.Init(*forceMigrationVersion)
 	storage.Init()
+	err := storage.Check()
+	if err != nil {
+		log.Fatalf("Failed to initialize storage backend: %s", err)
+	}
 	schedules.Init()
 	render.Init(*reloadTemplates)
 	api.Init()
