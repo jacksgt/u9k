@@ -49,6 +49,7 @@ func Init() {
 		r.Get("/email/{emailLink}", getEmailHandler)
 		r.Post("/email/{emailLink}", postEmailHandler)
 		r.Get("/link/{linkId}", previewLinkHandler)
+		r.Get("/file/{fileId}/raw/{filename}", rawFileHandler)
 		r.Get("/file/{fileId}", getFileHandler)
 		r.Get("/{linkId}", getLinkHandler)
 

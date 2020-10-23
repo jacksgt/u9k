@@ -40,6 +40,7 @@ func postLinkHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: should return 201 - Created, set Location header
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	fmt.Fprintf(w, "%s\n", link.ToJson())
 	return

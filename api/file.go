@@ -71,14 +71,16 @@ func postFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: need to delete temporary multipart form file after uploading
+
+	// TODO: should return 201 - Created, set Location header
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	fmt.Fprintf(w, "%s\n", file.ToJson())
 	return
 }
 
 func getFileHandler(w http.ResponseWriter, r *http.Request) {
-	fileId := chi.URLParam(r, "fileId")
-	file := db.GetFile(fileId)
+	file := db.GetFile(chi.URLParam(r, "fileId"))
 	if file == nil {
 		httpError(w, "Not Found", 404)
 		return
@@ -90,27 +92,39 @@ func getFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// supported for backwards compatibility
 	if r.FormValue("raw") == "true" {
-		db.IncrementCounter("file", file.Id)
-
-		// download file from backend
-		key := storage.FileKey(file.Id, file.Name)
-		data, err := storage.GetFile(key)
-		if err != nil {
-			httpError(w, "Internal Server Error", 500)
-			return
-		}
-
-		// TODO: cache this file locally for some time
-
-		// serve to client
-		rs := bytes.NewReader(data)
-		http.ServeContent(w, r, file.Name, file.CreateTimestamp, rs)
+		render.RedirectTo(w, r, file.RawLink())
 		return
 	}
 
 	render.PreviewFile(w, r, file)
 	return
+}
+
+func rawFileHandler(w http.ResponseWriter, r *http.Request) {
+	file := db.GetFile(chi.URLParam(r, "fileId"))
+	if file == nil {
+		httpError(w, "Not Found", 404)
+		return
+	}
+
+	// download file from backend
+	key := storage.FileKey(file.Id, file.Name)
+	data, err := storage.GetFile(key)
+	if err != nil {
+		httpError(w, "Internal Server Error", 500)
+		return
+	}
+
+	// run in the background
+	go db.IncrementCounter("file", file.Id)
+
+	// TODO: cache this file locally for some time
+
+	// serve to client
+	rs := bytes.NewReader(data)
+	http.ServeContent(w, r, file.Name, file.CreateTimestamp, rs)
 }
 
 func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
@@ -158,6 +172,7 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "%s", ew.HtmlBody)
 	// fmt.Fprintf(w, "%v", ew)
 
+	// TODO: return 202 - Accepted, run the rest in the background
 	err = ew.SendTo(toEmail)
 	if err != nil {
 		log.Printf("Failed to send email to %s: %s", toEmail, err)

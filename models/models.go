@@ -59,6 +59,10 @@ func (f *File) ExportLink() string {
 	return f.Link
 }
 
+func (f *File) RawLink() string {
+	return f.ExportLink() + "/raw/" + f.Name
+}
+
 func (f *File) ToJson() string {
 	f.ExportLink()
 	buf, err := json.Marshal(f)

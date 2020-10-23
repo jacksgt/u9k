@@ -11,7 +11,7 @@
         <p style="font-size: 1.25em;">
           <i>Click to download the file:</i>
           <br>
-          <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">
+          <a href="{{ .File.RawLink }}" download="{{ .File.Name }}" target="_blank">
             "{{ .File.Name }}"
           </a>
           <br>
@@ -21,7 +21,7 @@
           <br>
           {{ end }}
 
-          <a href="{{ .File.ExportLink }}?raw=true" download="{{ .File.Name }}" target="_blank">
+          <a href="{{ .File.RawLink }}" download="{{ .File.Name }}" target="_blank">
             <svg>
               <use href="#symbol_file-download"></use>
             </svg>
