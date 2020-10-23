@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
+	"strings"
 
 	"github.com/rhnvrm/simples3"
 
@@ -91,16 +93,9 @@ func StoreFile(file []byte, key string) error {
 	return nil
 }
 
-func GetFile(key string) ([]byte, error) {
-	var buf []byte
-	var err error
-
-	file, err := s3.FileDownload(simples3.DownloadInput{
-		Bucket:    config.S3Bucket,
-		ObjectKey: key,
-	})
+func GetFile(key string) (buf []byte, err error) {
+	file, err := GetFileStream(key)
 	if err != nil {
-		log.Printf("Failed to download file %s: %s\n", key, err)
 		return buf, err
 	}
 	defer file.Close()
@@ -112,6 +107,17 @@ func GetFile(key string) ([]byte, error) {
 
 func GetFileStream(key string) (io.ReadCloser, error) {
 	var err error
+	// workaround
+	// need to URL-encode the filename, because it might contain special characters
+	// only necessary for GET and DELETE
+	key = func(key string) string {
+		paths := strings.Split(key, "/")
+		for i := range paths {
+			paths[i] = url.QueryEscape(paths[i])
+		}
+		key = strings.Join(paths, "/")
+		return key
+	}(key)
 
 	file, err := s3.FileDownload(simples3.DownloadInput{
 		Bucket:    config.S3Bucket,
@@ -126,7 +132,20 @@ func GetFileStream(key string) (io.ReadCloser, error) {
 }
 
 func DeleteFile(key string) error {
-	err := s3.FileDelete(simples3.DeleteInput{
+	var err error
+	// workaround
+	// need to URL-encode the filename, because it might contain special characters
+	// only necessary for GET and DELETE
+	key = func(key string) string {
+		paths := strings.Split(key, "/")
+		for i := range paths {
+			paths[i] = url.QueryEscape(paths[i])
+		}
+		key = strings.Join(paths, "/")
+		return key
+	}(key)
+
+	err = s3.FileDelete(simples3.DeleteInput{
 		Bucket:    config.S3Bucket,
 		ObjectKey: key,
 	})

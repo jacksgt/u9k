@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"testing"
+
 	"u9k/config"
 )
 
@@ -27,7 +28,7 @@ func TestStoreGetDeleteFileStream(t *testing.T) {
 	Init()
 
 	inData := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
-	testKey := "connection-test.txt"
+	testKey := "TestStoreGetDeleteFileStream(!@&$).txt"
 
 	err := StoreFileStream(bytes.NewReader(inData), testKey, "text/plain")
 	if err != nil {
@@ -60,7 +61,7 @@ func TestStoreGetDeleteFile(t *testing.T) {
 	Init()
 
 	testFile := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
-	testKey := "connection-test.txt"
+	testKey := "test/TestStoreGetDeleteFile(!@&$).txt"
 
 	err := StoreFile(testFile, testKey)
 	if err != nil {
