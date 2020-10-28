@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/rhnvrm/simples3"
@@ -107,17 +108,10 @@ func GetFile(key string) (buf []byte, err error) {
 
 func GetFileStream(key string) (io.ReadCloser, error) {
 	var err error
-	// workaround
+	// workaround for https://github.com/rhnvrm/simples3/issues/7
 	// need to URL-encode the filename, because it might contain special characters
 	// only necessary for GET and DELETE
-	key = func(key string) string {
-		paths := strings.Split(key, "/")
-		for i := range paths {
-			paths[i] = url.QueryEscape(paths[i])
-		}
-		key = strings.Join(paths, "/")
-		return key
-	}(key)
+	key = encodeS3Uri(key)
 
 	file, err := s3.FileDownload(simples3.DownloadInput{
 		Bucket:    config.S3Bucket,
@@ -133,17 +127,10 @@ func GetFileStream(key string) (io.ReadCloser, error) {
 
 func DeleteFile(key string) error {
 	var err error
-	// workaround
+	// workaround for https://github.com/rhnvrm/simples3/issues/7
 	// need to URL-encode the filename, because it might contain special characters
 	// only necessary for GET and DELETE
-	key = func(key string) string {
-		paths := strings.Split(key, "/")
-		for i := range paths {
-			paths[i] = url.QueryEscape(paths[i])
-		}
-		key = strings.Join(paths, "/")
-		return key
-	}(key)
+	key = encodeS3Uri(key)
 
 	err = s3.FileDelete(simples3.DeleteInput{
 		Bucket:    config.S3Bucket,
@@ -155,6 +142,46 @@ func DeleteFile(key string) error {
 	}
 
 	return nil
+}
+
+var encodings = map[string]string{
+	`+`: `%2B`,
+	`!`: `%21`,
+	`"`: `%22`,
+	`#`: `%23`,
+	`$`: `%24`,
+	`&`: `%26`,
+	"`": `%27`,
+	`(`: `%28`,
+	`)`: `%29`,
+	`*`: `%2A`,
+	`,`: `%2C`,
+	`:`: `%3A`,
+	`;`: `%3B`,
+	`=`: `%3D`,
+	`?`: `%3F`,
+	`@`: `%40`,
+}
+
+// workaround for https://github.com/rhnvrm/simples3/issues/7
+// need to URL-encode the filename, because it might contain special characters
+// only necessary for GET and DELETE
+func encodeS3Uri(key string) string {
+	regex := regexp.MustCompile(
+		`(\+|!|"|#|\$|&|'|\(|\)|\*|\+|,|:|;|=|\?|@)`,
+	)
+
+	paths := strings.Split(key, "/")
+	for i := range paths {
+		paths[i] = regex.ReplaceAllStringFunc(
+			url.PathEscape(paths[i]),
+			func(match string) string {
+				return encodings[match]
+			},
+		)
+	}
+	key = strings.Join(paths, "/")
+	return key
 }
 
 // adapted from https://golangcode.com/get-the-content-type-of-file/

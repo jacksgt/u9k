@@ -28,7 +28,7 @@ func TestStoreGetDeleteFileStream(t *testing.T) {
 	Init()
 
 	inData := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
-	testKey := "TestStoreGetDeleteFileStream(!@&$).txt"
+	testKey := "test/TestStoreGetDeleteFileStream (!@&$).txt"
 
 	err := StoreFileStream(bytes.NewReader(inData), testKey, "text/plain")
 	if err != nil {
@@ -61,7 +61,7 @@ func TestStoreGetDeleteFile(t *testing.T) {
 	Init()
 
 	testFile := []byte("HelloWorld\nFooBar\nOneTwoThree\n")
-	testKey := "test/TestStoreGetDeleteFile(!@&$).txt"
+	testKey := "test/TestStoreGetDeleteFile (!@&$).txt"
 
 	err := StoreFile(testFile, testKey)
 	if err != nil {
