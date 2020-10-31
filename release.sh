@@ -4,7 +4,7 @@ set -e
 
 version="$1"
 
-if echo "$version" | grep '^v[[:digit:]+]\.[[:digit:]+]\.[[:digit:]+]$'; then
+if echo "$version" | grep -E '^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$'; then
     echo "Releasing version '$version'"
 else
     echo "Invalid release tag '$version'"
@@ -20,5 +20,5 @@ sed -i "s/const Version = \".*\"\$/const Version = \"$version\"/" config/config.
 git add config/config.go
 git commit -m "Release version $version"
 git tag "$version"
-docker image build --rm -t "jacksgt/u9k:$version" .
+DOCKER_BUILDKIT=1 docker image build --rm -t "jacksgt/u9k:$version" .
 docker image push "jacksgt/u9k:$version"
