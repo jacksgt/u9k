@@ -219,6 +219,12 @@ a {
 	overflow-y: scroll;
 }
 
+/* makes a table cell with class fitwidth responsive to the minium size */
+table td.fitwidth {
+    width: 1px;
+    /* white-space: nowrap; */
+}
+
 
 /*
  * -- MENU STYLES --

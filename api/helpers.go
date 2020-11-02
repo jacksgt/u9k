@@ -115,16 +115,6 @@ func extractFormFileHeader(name string, r *http.Request) *multipart.FileHeader {
 	return fileHeaders[0]
 }
 
-// extrated from https://github.com/emirozer/go-helpers/
-func stringInSlice(str string, slice []string) bool {
-	for _, item := range slice {
-		if item == str {
-			return true
-		}
-	}
-	return false
-}
-
 // adapted from https://golangcode.com/get-the-content-type-of-file/
 func getFileContentType(r io.Reader) string {
 	// Only the first 512 bytes are used to sniff the content type.
