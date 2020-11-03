@@ -15,7 +15,7 @@ steps:
     - 'eslint static/js/main.js'
 
 - name: Build and publish container image
-  image: banzaicloud/drone-kaniko
+  image: banzaicloud/drone-kaniko:0.5.1
   settings:
     repo: jacksgt/u9k
     tags:
