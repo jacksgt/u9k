@@ -208,15 +208,19 @@ func IPPage(r *http.Request, w http.ResponseWriter, c types.ClientInfo) {
 	}
 }
 
-// TODO: write some tests for this
-// Accept: text/html
-// Accept: image/*
-// Accept: */*
-// Accept: text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8
+// acceptsType checks if an HTTP clients accepts a certain mimetype
+// For Accept header is unspecified or */*, only allows text/html mimetypes.
+// Note: does not support wildcards (yet)
 func acceptsType(r *http.Request, mimetype string) bool {
 	acceptFields := strings.Split(r.Header.Get("Accept"), ",")
+
+	// discard any weight parameters
+	for k := range acceptFields {
+		acceptFields[k] = strings.Split(acceptFields[k], ";")[0]
+	}
+
+	// if Accept header unspecified, only allow html
 	if len(acceptFields) == 0 || misc.StringInSlice("*/*", acceptFields) {
-		// if Accept header unspecified, only allow html
 		return mimetype == "text/html"
 	}
 
