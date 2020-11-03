@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "_head.html"}}
+  </head>
+  <body>
+    {{ template "_header.html" }}
+
+    <div class="content-wrapper">
+      <div class="pure-u-1 content is-center">
+        <p style="font-size: 1.25em;">
+          <i>Your web browser provided the following information:</i>
+          <br>
+          <table class="pure-table pure-table-striped" style="text-align: left; width: 100%;">
+            <tbody>
+              <tr>
+                <td class="fitwidth">IP&nbsp;Address:</td>
+                <td>{{ .ClientInfo.IPAddress }}</td>
+                <td class="fitwidth">
+                  <span title="The IP address from which you are connecting to our servers.">
+                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                      <svg style="height: 1.5em; width: 1.5em;">
+                        <use href="#symbol_question-mark-circle"></use>
+                      </svg>
+                    </a>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="fitwidth">Web&nbsp;Browser:</td>
+                <td>{{ .ClientInfo.Browser }}</td>
+                <td>
+                  <span title="The web browser you are using to view this web page.">
+                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                      <svg style="height: 1.5em; width: 1.5em;">
+                        <use href="#symbol_question-mark-circle"></use>
+                      </svg>
+                    </a>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="fitwidth">Operating&nbsp;System:</td>
+                <td>{{ .ClientInfo.OS }}</td>
+                <td>
+                  <span title="The operating system as reported by your web browser.">
+                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                      <svg style="height: 1.5em; width: 1.5em;">
+                        <use href="#symbol_question-mark-circle"></use>
+                      </svg>
+                    </a>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </p>
+      </div>
+    </div>
+
+    {{ template "_footer.html" . }}
+
+    {{ template "_icons.html" }}
+  </body>
+</html>

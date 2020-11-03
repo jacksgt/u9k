@@ -26,12 +26,14 @@ type Wrapper struct {
 }
 
 func (e Wrapper) SendTo(toEmail string) error {
-	// TODO: implement and check for email unsubscribe list
-
 	if config.SmtpDisabled {
 		log.Printf("Email sending disabled, skipping.")
 		return nil
 	}
+
+	// Workaround for old email timestamps
+	// https://git.cubieserver.de/jh/u9k/issues/12
+	mail = nil
 
 	// Create a new email - specify the SMTP host and auth
 	if mail == nil {

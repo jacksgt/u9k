@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -12,6 +13,7 @@ import (
 
 	"u9k/config"
 	"u9k/email"
+	"u9k/misc"
 	"u9k/models"
 	"u9k/types"
 )
@@ -177,4 +179,51 @@ func EmailSubscribePage(w http.ResponseWriter, m types.Email) {
 		"Email":  m,
 	}
 	execTemplate(w, "subscribe.html", data)
+}
+
+func IPPage(r *http.Request, w http.ResponseWriter, c types.ClientInfo) {
+	if acceptsType(r, "text/plain") {
+		fmt.Fprintf(w,
+			"IP Address: %s\nBrowser: %s\nOperating System:%s\n",
+			c.IPAddress,
+			c.Browser,
+			c.OS,
+		)
+	} else if acceptsType(r, "application/json") {
+		// marshal JSON
+		rawJson, err := json.Marshal(c)
+		if err != nil {
+			log.Printf("IPPage: failed to marshal JSON: %s", err)
+			http.Error(w, "Internal Server Error", 500)
+			return
+		}
+		fmt.Fprintf(w, "%s", rawJson)
+	} else {
+		// render html template
+		data := M{
+			"Config":     appConfig,
+			"ClientInfo": c,
+		}
+		execTemplate(w, "ip.html", data)
+	}
+}
+
+// acceptsType checks if an HTTP clients accepts a certain mimetype
+// For Accept header is unspecified or */*, only allows text/html mimetypes.
+// Note: does not support wildcards (yet)
+func acceptsType(r *http.Request, mimetype string) bool {
+	acceptFields := strings.Split(r.Header.Get("Accept"), ",")
+
+	// discard any weight parameters
+	for k := range acceptFields {
+		acceptFields[k] = strings.Split(acceptFields[k], ";")[0]
+	}
+
+	// if Accept header unspecified, only allow html
+	if len(acceptFields) == 0 || misc.StringInSlice("*/*", acceptFields) {
+		return mimetype == "text/html"
+	}
+
+	// simplistic handling, does not support wildcards
+	return misc.StringInSlice(mimetype, acceptFields)
 }

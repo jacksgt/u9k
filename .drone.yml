@@ -6,8 +6,8 @@ steps:
 - name: Test and build binary
   image: golang:1.15-buster
   commands:
-    - 'go build u9k/cmd/server/'
-    - 'go test -test.short ./...'
+    - 'make server'
+    - 'make go-unit-tests'
 
 - name: Lint JS code
   image: pipelinecomponents/eslint:02bbbc8
