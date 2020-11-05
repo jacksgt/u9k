@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/smtp"
 	"strings"
+	"sync"
 
 	"u9k/config"
 
@@ -17,6 +18,7 @@ const (
 	mailFromName  = "U9K.de"
 )
 
+var mailMutex *sync.Mutex = &sync.Mutex{}
 var mail *mailyak.MailYak
 
 type Wrapper struct {
@@ -31,9 +33,8 @@ func (e Wrapper) SendTo(toEmail string) error {
 		return nil
 	}
 
-	// Workaround for old email timestamps
-	// https://git.cubieserver.de/jh/u9k/issues/12
-	mail = nil
+	mailMutex.Lock()
+	defer mailMutex.Unlock()
 
 	// Create a new email - specify the SMTP host and auth
 	if mail == nil {
