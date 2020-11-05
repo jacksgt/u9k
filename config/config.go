@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const Version = "v0.10.3"
+const Version = "v0.10.4"
 
 func Init() {
 	baseUrl := os.Getenv("U9K_BASE_URL")
