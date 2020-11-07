@@ -236,6 +236,7 @@ table td.fitwidth {
     text-align: center;
     box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
     background: #4b6584;
+    width: 100%;
 }
 
 .pure-menu.pure-menu-fixed {
@@ -256,13 +257,79 @@ table td.fitwidth {
 }
 
 .home-menu a {
-    color: #6FBEF3;
+    color: white;
 }
-.home-menu li a:hover,
-.home-menu li a:focus {
-    background: none;
-    border: none;
-    color: #AECFE5;
+
+/*
+ * -- DYANMIC MENU STYLES --
+ * On large, desktop devices just show the menu items
+ * on small, mobile devices hide the items behind a menu button
+ */
+
+.menu-link {
+    display: none; /* show this only on small screens */
+    position: absolute;
+    float: right;
+    right: 5px;
+    padding: 0.25em; /* for vertical alignment */
+    font-size: 20px; /* change this value to increase/decrease button size */
+    cursor: pointer; /* make it look&feel like a button */
+    transition: all 0.5 linear;
+    transform: rotate(0deg);
+}
+
+.menu-link svg {
+    display: inline;
+    height: 1.5em;
+    width: 1.5em;
+    color: white;
+}
+
+.pure-menu-item:hover, .pure-menu-item:focus {
+    border-bottom: 3px solid white;
+}
+
+.pure-menu-list {
+    display: flex;
+    transition: all 0.15s ease;
+}
+
+/* Menu media queries for LARGE devices */
+@media screen and (min-width: 500px) {
+    .pure-menu-list {
+        flex-direction: row;
+    }
+
+    .pure-menu-item {
+        width: 100px; /* on desktop, all items have a fixed size */
+        text-align: center;
+    }
+}
+
+/* Media queries for SMALL devices */
+@media screen and (max-width: 500px) {
+    .pure-menu-list {
+        flex-direction: column;
+        max-height: 0; /* hide by default, show with JS */
+        overflow-y: hidden;
+    }
+
+    .pure-menu-list.expanded {
+        max-height: 1000px; /* remove height limitation */
+    }
+
+    .menu-link {
+        display: block; /* show only for small devices */
+    }
+
+    .menu-link.expanded {
+        transform: rotate(90deg);
+    }
+
+    .pure-menu-item {
+        border-bottom: 2px solid white;
+        margin-top: 5px;
+    }
 }
 
 

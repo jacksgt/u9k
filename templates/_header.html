@@ -1,14 +1,35 @@
 <div class="header">
-  <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-    <a href="/" title="U9K Homepage"><img src="/static/icons/favicon-180x180.png" alt="U9K Logo" style="height: 3em; vertical-align: middle;"></a>
+  <div class="home-menu pure-menu pure-menu-fixed">
+    <span id="menuLink" class="menu-link">
+      <svg>
+        <use href="#symbol_menu"></use>
+      </svg>
+    </span>
 
-    <ul class="pure-menu-list">
-      <!-- TODO: change link color, change background color on hover to var(--light-blue) -->
-      <!-- TODO: make hamburger menu on small devices -->
-      <li class="pure-menu-item"><a href="{{ absUrl "/" }}" class="pure-menu-link">Home</a></li>
-      <li class="pure-menu-item"><a href="{{ absUrl "/ip/" }}" class="pure-menu-link">IP</a></li>
+    <a href="/" title="U9K Homepage">
+    <img src="/static/icons/favicon-180x180.png" alt="U9K Logo" style="height: 3em; vertical-align: middle; margin: 0 auto;">
+    </a>
+
+    <ul id="menuList" class="pure-menu-list">
+      <li class="pure-menu-item"></li> <!-- empty, only for CSS purposes -->
+      <li class="pure-menu-item"><a href="http://localhost:3000/" class="pure-menu-link">Home</a></li>
+      <li class="pure-menu-item"><a href="http://localhost:3000/ip/" class="pure-menu-link">IP</a></li>
     </ul>
   </div>
+
+  <script>
+    async function dynamicMenu() {
+        const menuButton = document.getElementById('menuLink');
+        const menuList = document.getElementById('menuList');
+
+        menuLink.addEventListener('click', function(e){
+            e.preventDefault() ;
+            menuButton.classList.toggle('expanded');
+            menuList.classList.toggle('expanded');
+        });
+    }
+    dynamicMenu();
+  </script>
 </div>
 
 <!-- create some space from the header -->
