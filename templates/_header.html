@@ -6,14 +6,14 @@
       </svg>
     </span>
 
-    <a href="/" title="U9K Homepage">
+    <a href="{{ absUrl "/" }}" title="U9K Homepage">
     <img src="/static/icons/favicon-180x180.png" alt="U9K Logo" style="height: 3em; vertical-align: middle; margin: 0 auto;">
     </a>
 
     <ul id="menuList" class="pure-menu-list">
       <li class="pure-menu-item"></li> <!-- empty, only for CSS purposes -->
-      <li class="pure-menu-item"><a href="http://localhost:3000/" class="pure-menu-link">Home</a></li>
-      <li class="pure-menu-item"><a href="http://localhost:3000/ip/" class="pure-menu-link">IP</a></li>
+      <li class="pure-menu-item"><a href="{{ absUrl "/" }}" class="pure-menu-link">Home</a></li>
+      <li class="pure-menu-item"><a href="{{ absUrl "/ip/" }}" class="pure-menu-link">IP</a></li>
     </ul>
   </div>
 
