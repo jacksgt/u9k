@@ -231,6 +231,9 @@ function fileWidget() {
     const outputField = outputForm.outputUrl;
     const sendEmailButton = outputForm.send;
     const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
+    outputField.addEventListener('focus', function(event) {
+        selectAndCopy(event.target);
+    });
 
     /* initialize the list of most recent links */
     const fileListWrapper = _query("#file-list-wrapper");
@@ -392,6 +395,9 @@ function linkWidget() {
     const outputForm = _query('#link-output-form');
     const outputField = outputForm.outputUrl;
     const qrCodeWrapper = outputForm.querySelector(".form-qr-code");
+    outputField.addEventListener('focus', function(event) {
+        selectAndCopy(event.target);
+    });
 
     /* initialize the list of most recent links */
     const linkListWrapper = _query("#link-list-wrapper");
