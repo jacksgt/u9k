@@ -44,13 +44,11 @@
 
         <div id="link-list-wrapper" class="recent-items-wrapper">
           These are your most recent links (<a id="button-clear-link-list">clear</a>):
-          <span title="This list of links is stored inside your browser only (localStorage), not on our servers. You can delete the link list by clicking 'clear'. This does not delete links from our servers.">
-            <a>
-              <svg style="display: inline; height: 1.5em; width: 1.5em; float: right;">
-                <use href="#symbol_question-mark-circle"></use>
-              </svg>
-            </a>
-          </span>
+          <a data-tip="This list is only stored in your browser. Clicking 'clear' does not delete links from our servers." style="float: right;">
+            <svg style="display: inline; height: 1.5em; width: 1.5em;">
+              <use href="#symbol_question-mark-circle"></use>
+            </svg>
+          </a>
 
           <!-- here goes the RecentItems table (JS) -->
         </div>
@@ -113,13 +111,11 @@
 
         <div id="file-list-wrapper" class="recent-items-wrapper">
           These are your most recent files (<a id="button-clear-file-list">clear</a>):
-          <span title="This list of files is stored inside your browser only (localStorage), not on our servers. You can delete the link list by clicking 'clear'. This does not delete files from our servers.">
-            <a>
-              <svg style="display: inline; height: 1.5em; width: 1.5em; float: right;">
-                <use href="#symbol_question-mark-circle"></use>
-              </svg>
-            </a>
-          </span>
+          <a data-tip="This list is only stored in your browser. Clicking 'clear' will not delete these items from the servers." style="float: right;">
+            <svg style="display: inline; height: 1.5em; width: 1.5em;">
+              <use href="#symbol_question-mark-circle"></use>
+            </svg>
+          </a>
 
           <!-- here goes the RecentItems table (JS) -->
         </div>
@@ -131,4 +127,12 @@
 
     {{ template "_icons.html" }}
   </body>
+  <script>
+    /* register relevant event handlers */
+    window.addEventListener('load', (event) => {
+        linkWidget();
+        fileWidget();
+        tooltips();
+    });
+  </script>
 </html>

@@ -144,8 +144,6 @@ a {
     font-size: 0.75em;
     /* height: 80%; */
     line-height: 18px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
     border-radius: 5px;
     white-space: nowrap;
     word-wrap: normal;
@@ -153,7 +151,6 @@ a {
     margin: 0;
     position: absolute;
     top: 50%;
-    -ms-transform: translateY(-50%);
     transform: translateY(-50%);
 }
 

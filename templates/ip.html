@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     {{template "_head.html"}}
+    <script defer src="/static/js/main.js"></script>
   </head>
   <body>
     {{ template "_header.html" }}
@@ -17,39 +18,33 @@
                 <td class="fitwidth">IP&nbsp;Address:</td>
                 <td>{{ .ClientInfo.IPAddress }}</td>
                 <td class="fitwidth">
-                  <span title="The IP address from which you are connecting to our servers.">
-                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                    <a data-tip="The IP address from which you are connecting to our servers." style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
                       <svg style="height: 1.5em; width: 1.5em;">
                         <use href="#symbol_question-mark-circle"></use>
                       </svg>
                     </a>
-                  </span>
                 </td>
               </tr>
               <tr>
                 <td class="fitwidth">Web&nbsp;Browser:</td>
                 <td>{{ .ClientInfo.Browser }}</td>
                 <td>
-                  <span title="The web browser you are using to view this web page.">
-                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                    <a data-tip="The web browser you are using to view this web page." style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
                       <svg style="height: 1.5em; width: 1.5em;">
                         <use href="#symbol_question-mark-circle"></use>
                       </svg>
                     </a>
-                  </span>
                 </td>
               </tr>
               <tr>
                 <td class="fitwidth">Operating&nbsp;System:</td>
                 <td>{{ .ClientInfo.OS }}</td>
                 <td>
-                  <span title="The operating system as reported by your web browser.">
-                    <a style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
+                    <a data-tip="The operating system as reported by your web browser." style="display: flex; align-items: center;"> <!-- vertically align svg icon -->
                       <svg style="height: 1.5em; width: 1.5em;">
                         <use href="#symbol_question-mark-circle"></use>
                       </svg>
                     </a>
-                  </span>
                 </td>
               </tr>
             </tbody>
@@ -62,4 +57,10 @@
 
     {{ template "_icons.html" }}
   </body>
+  <script>
+    /* register relevant event handlers */
+    window.addEventListener('load', (event) => {
+        tooltips();
+    });
+  </script>
 </html>

@@ -13,6 +13,27 @@ function _queryAll(query) {
 }
 
 
+function tooltips() {
+    // all elements with a "data-tip" attribute
+    const selector = "a[data-tip]";
+
+    // function that handles onclick events
+    function onclickHandler(event) {
+            // find the closest parent of the event target that
+            // matches the selector
+            const closest = event.target.closest(selector);
+            if (closest) {
+                // handle class event
+                closest.classList.toggle("show");
+            }
+    }
+
+    // add the handler to each element in the DOM that matches selector
+    Array.from(_queryAll(selector)).forEach(function(element) {
+        element.addEventListener('click', onclickHandler);
+    });
+}
+
 function selectAndCopy(element) {
     element.select(); // select (highlight) text
     if (document.execCommand('copy') === true) { // copy to clipboard
@@ -435,9 +456,3 @@ function linkWidget() {
 
     linkInputForm.addEventListener('submit', submitHandler);
 }
-
-/* register all event handlers */
-window.addEventListener('load', (event) => {
-    linkWidget();
-    fileWidget();
-});
