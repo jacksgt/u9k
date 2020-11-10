@@ -88,6 +88,19 @@ class RecentItems {
         }
         this.enabled = true;
         this.localStorageName = "RecentItems_" + itemName;
+
+        /* upgrade routine due to name change 'Link' to 'URL' -- 2020-11-10 */
+        if (itemName == 'URL') {
+            const oldName = 'RecentItems_Link';
+            const oldData = localStorage.getItem(oldName);
+            // if there is any old data and no new data
+            if (oldData && ! localStorage.getItem(this.localStorageName)) {
+                // store the old data under the new key
+                localStorage.setItem(this.localStorageName, oldData);
+                // delete the old key
+                localStorage.removeItem(oldName);
+            }
+        }
     }
 
     // adds a new item to the list and returns the updated list
@@ -188,7 +201,7 @@ class RecentItems {
                 const prettyLink = link.split('://')[1]; // strip leading https://
                 const data = l.data;
                 const ts = l.timestamp.split('T')[0] || ""; // just show the date
-                if (this.itemName == 'Link') {
+                if (this.itemName == 'URL') {
                     row = `
                     <td><a href="${link}" target="_blank">${prettyLink}</a></td>
                     <td><a href="${data}" target="_blank">${data}</a></td>
@@ -401,7 +414,7 @@ function linkWidget() {
 
     /* initialize the list of most recent links */
     const linkListWrapper = _query("#link-list-wrapper");
-    const recentLinks = new RecentItems('Link', linkListWrapper);
+    const recentLinks = new RecentItems('URL', linkListWrapper);
     recentLinks.fillHtml(); // populate the table
     /* register handler for deleting list */
     _query("#button-clear-link-list").addEventListener('click', (event) => {
