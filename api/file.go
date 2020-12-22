@@ -120,7 +120,8 @@ func rawFileHandler(w http.ResponseWriter, r *http.Request) {
 	// run in the background
 	go db.IncrementCounter("file", file.Id)
 
-	// TODO: cache this file locally for some time
+	// set content-type header manually, so ServeContent() won't try to guess it
+	w.Header().Set("Content-Type", file.Type)
 
 	// serve to client
 	rs := bytes.NewReader(data)
