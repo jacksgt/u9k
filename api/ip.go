@@ -19,14 +19,18 @@ func getIpHandler(w http.ResponseWriter, r *http.Request) {
 		ip = strings.Split(r.RemoteAddr, ":")[0]
 	}
 
+	var browser = "Unknown"
+	var os = "Unknown"
 	userAgent := useragent.Parse(r.UserAgent())
-	var browser string = userAgent.Name
-	if userAgent.Version.String() != "0.0.0" {
-		browser += " " + userAgent.Version.String()
-	}
-	var os string = userAgent.OS
-	if userAgent.OSVersion.String() != "0.0.0" {
-		os += " " + userAgent.OSVersion.String()
+	if userAgent != nil {
+		browser = userAgent.Name
+		if userAgent.Version.String() != "0.0.0" {
+			browser += " " + userAgent.Version.String()
+		}
+		os = userAgent.OS
+		if userAgent.OSVersion.String() != "0.0.0" {
+			os += " " + userAgent.OSVersion.String()
+		}
 	}
 
 	render.IPPage(r, w, types.ClientInfo{

@@ -170,6 +170,11 @@ a {
     font-size: 120%;
 }
 
+.pure-button-error {
+    background: var(--error-red);
+    font-size: 120%;
+}
+
 .pure-button-ok {
     background: var(--logo-green);
     font-size: 120%;
@@ -282,6 +287,15 @@ table td.fitwidth {
     color: white;
 }
 
+.pure-menu-item {
+    line-height: 42px;
+}
+
+.pure-menu-item a {
+    text-decoration: none; /* no underline for links */
+    padding: .5em 1em;
+}
+
 .pure-menu-item:hover, .pure-menu-item:focus {
     border-bottom: 3px solid white;
 }
@@ -298,7 +312,6 @@ table td.fitwidth {
     }
 
     .pure-menu-item {
-        width: 100px; /* on desktop, all items have a fixed size */
         text-align: center;
     }
 }

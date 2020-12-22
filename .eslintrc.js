@@ -4,12 +4,16 @@ module.exports = {
         "es6": true
     },
     "parserOptions": {
+        "ecmaVersion": 2017,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
             "jsx": true
         },
         "sourceType": "module"
     },
+    "ignorePatterns": [
+        "*.min.js"
+    ],
     "extends": "eslint:recommended",
     "rules": {
         "no-unused-vars": "off",
