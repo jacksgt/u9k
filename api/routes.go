@@ -54,6 +54,7 @@ func Init() {
 		r.Get("/{linkId}", getLinkHandler)
 
 	})
+	r.Get("/video-audio-test/", videoAudioTestHandler)
 	r.Get("/", indexHandler)
 	r.Get("/index.html", indexHandler)
 
@@ -63,6 +64,10 @@ func Init() {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	render.Index(w)
+}
+
+func videoAudioTestHandler(w http.ResponseWriter, r *http.Request) {
+	render.VideoAudio(w)
 }
 
 func subscribeUrl(subscribeLink string) string {

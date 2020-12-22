@@ -119,6 +119,13 @@ func Index(w http.ResponseWriter) {
 	execTemplate(w, "index.html", data)
 }
 
+func VideoAudio(w http.ResponseWriter) {
+	data := M{
+		"Config": appConfig,
+	}
+	execTemplate(w, "video-audio-test.html", data)
+}
+
 func renderMail(m *types.MailContent) (string, error) {
 	data := M{
 		"Config": appConfig,

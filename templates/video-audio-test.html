@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "_head.html"}}
+    <script defer src="/static/js/main.js"></script>
+    <script defer src="/static/js/getusermedia-test.js"></script>
+    <style>
+      #svg-placeholder-image {
+          width: 100%;
+      }
+
+      #content audio {
+          width: 100%;
+      }
+
+      .pure-button {
+          margin: 0.25em;
+      }
+
+      .overlay {
+          --border-style: 3px solid black;
+          --border-space: 20px;
+
+          position: absolute;
+          display: none;
+      }
+
+      .overlay-helper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+      }
+
+      .overlay-element {
+          padding: 20px;
+          width: 150px;
+          height: 100px;
+          position: absolute;
+      }
+
+      .overlay-text {
+          font-size: 1.5em;
+          color: black;
+          font-family: monospace;
+      }
+
+      .overlay .top-left {
+          border-left: var(--border-style);
+          border-top: var(--border-style);
+          top: var(--border-space);
+          left: var(--border-space);
+          text-align: left;
+      }
+
+      .overlay .top-right {
+          border-right: var(--border-style);
+          border-top: var(--border-style);
+          top: var(--border-space);
+          right: var(--border-space);
+          text-align: right;
+      }
+
+      .overlay .bottom-left {
+          border-left: var(--border-style);
+          border-bottom: var(--border-style);
+          bottom: var(--border-space);
+          left: var(--border-space);
+          text-align: left;
+      }
+
+      .overlay .bottom-right {
+          border-right: var(--border-style);
+          border-bottom: var(--border-style);
+          bottom: var(--border-space);
+          right: var(--border-space);
+          text-align: right;
+      }
+
+      #overlay-bottom-left-text {
+          position: absolute;
+          bottom: var(--border-space);
+          left: var(--border-space);
+      }
+
+      #overlay-bottom-right-text {
+          position: absolute;
+          bottom: var(--border-space);
+          right: var(--border-space);
+      }
+    </style>
+  </head>
+  <body>
+    {{ template "_header.html" }}
+
+    <div class="content-wrapper">
+      <div class="pure-u-1 content is-center">
+        <h2>Camera and Microphone recording</h2>
+
+        <div id="gum_warn" style="display: none">
+          <font color="red">
+            <h4>Your Browser does not support "getUserMedia"</h4>
+            This page only works when loaded loaded <a href="https://mozilla.github.io/webrtc-landing/gum_test.html">via HTTPS</a> as getUserMedia() can only be accessed via HTTPS.<br><br>
+          </font>
+        </div>
+
+        <div id="content" style="position: relative;">
+          <div id="duration" style="position: absolute; top: 10%; left: 60%; font-family: monospace; font-size: 2.5rem;">00:00</div>
+
+          <object id="svg-placeholder-image" data="/static/icons/recording-phone_undraw-co.svg" type="image/svg+xml"></object>
+
+          <div id="video-overlay" class="overlay">
+            <div class="overlay-helper">
+              <div class="overlay-element top-left">
+                <span id="overlay-top-left-text" class="overlay-text">
+                  🔴 REC
+                </span>
+              </div>
+              <div class="overlay-element top-right">
+                <span id="overlay-top-right-text" class="overlay-text">
+                  00:00
+                </span>
+              </div>
+              <div class="overlay-element bottom-left">
+                <span id="overlay-bottom-left-text" class="overlay-text">
+                  25 FPS
+                </span>
+              </div>
+              <div class="overlay-element bottom-right">
+                <span id="overlay-bottom-right-text" class="overlay-text">
+                  1280x720
+                </span>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+        <div id="message"></div>
+        <div id="startbuttons">
+          <input value="Camera" id="startVideoButton" type="button" class="pure-button">
+          <input value="Screen capture" id="startScreenButton" type="button" class="pure-button">
+          <input value="Microphone" id="startAudioButton" type="button" class="pure-button">
+        </div>
+        <div style="display: none;" id="stopbuttons">
+          <input value="Stop recording" id="stopButton" type="button" class="pure-button pure-button-error">
+        </div>
+        <div id="download-wrapper" style="display: none;">
+          <input value="Download" id="downloadButton" type="button" class="pure-button">
+          <input value="Record another one" id="againButton" onclick="javascript:window.location.reload(false); return false;" type="button" class="pure-button">
+        </div>
+      </div>
+    </div>
+
+    {{ template "_footer.html" . }}
+
+    {{ template "_icons.html" }}
+  </body>
+  <script>
+    /* register relevant event handlers */
+    window.addEventListener('load', (event) => {
+        tooltips();
+        videoAudioTestWidget();
+    });
+  </script>
+</html>

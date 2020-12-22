@@ -12,7 +12,7 @@ steps:
 - name: Lint JS code
   image: pipelinecomponents/eslint:02bbbc8
   commands:
-    - 'eslint static/js/main.js'
+    - 'eslint static/js/'
 
 - name: Build and publish container image
   image: banzaicloud/drone-kaniko:0.5.1

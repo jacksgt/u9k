@@ -14,7 +14,7 @@ go-unit-tests:
 
 .PHONY: js-lint
 js-lint:
-	( PATH=./node_modules/.bin/:$$PATH node_modules/.bin/eslint static/js/main.js )
+	( PATH=./node_modules/.bin/:$$PATH node_modules/.bin/eslint static/js/ )
 
 .PHONY: dev # runs the development version
 dev:
