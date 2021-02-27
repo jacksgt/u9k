@@ -13,7 +13,7 @@ type MailContent struct {
 }
 
 type Email struct {
-	Address       string
+	AddressHash string
 	SubscribeLink string
 	Unsubscribed  bool
 }

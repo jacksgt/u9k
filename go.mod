@@ -13,4 +13,5 @@ require (
 	github.com/jackc/pgx/v4 v4.8.1
 	github.com/rhnvrm/simples3 v0.6.1
 	github.com/xojoc/useragent v0.0.0-20200116211053-1ec61d55e8fe
+	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 )

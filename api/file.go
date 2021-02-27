@@ -151,15 +151,15 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	// check if the recipient has unsubscribed from emails
 	subscribeLink, err := db.GetEmailSubscribeLink(toEmail)
+	if err == db.ErrEmailUnsubscribed {
+		log.Printf("Aborting email request, recipient unsubscribed from emails")
+		httpError(w, "Bad Request", 400)
+		return
+	}
 	if err != nil {
 		log.Printf("Not allowed to send emails to %s\n", toEmail)
 		// TODO: implement a better response and make it visible to the user
 		httpError(w, "Internal Server Error", 500)
-		return
-	}
-	if subscribeLink == "" {
-		log.Printf("Aborting email request, recipient unsubscribed from emails")
-		httpError(w, "Bad Request", 400)
 		return
 	}
 

@@ -5,6 +5,9 @@ import (
 	"log"
 	"math/rand"
 	"time"
+	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -16,6 +19,10 @@ import (
 
 // shared connection pool
 var pool *pgxpool.Pool
+
+// The error returned from GetEmailSubscribeLink when a user (email address)
+// has unsubscribed from emails.
+var ErrEmailUnsubscribed = errors.New("User is unsubscribed from emails")
 
 func Init(forceVersion int) {
 	// set up connection configuration
@@ -223,7 +230,7 @@ func GetEmail(subscribeLink string) (m types.Email, err error) {
 	err = pool.QueryRow(context.Background(),
 		"SELECT address, subscribe_link, unsubscribed FROM email_list WHERE subscribe_link = $1",
 		subscribeLink,
-	).Scan(&m.Address, &m.SubscribeLink, &m.Unsubscribed)
+	).Scan(&m.AddressHash, &m.SubscribeLink, &m.Unsubscribed)
 
 	if err != nil {
 		log.Printf("Failed to get email: %s\n", err)
@@ -238,7 +245,7 @@ func SaveEmail(m *types.Email) (err error) {
 		// create a new entry in db
 		err = pool.QueryRow(context.Background(),
 			"INSERT INTO email_list (address, unsubscribed) VALUES ($1, $2) RETURNING subscribe_link, unsubscribed",
-			m.Address,
+			m.AddressHash,
 			m.Unsubscribed,
 		).Scan(&m.SubscribeLink, &m.Unsubscribed)
 	} else {
@@ -259,14 +266,14 @@ func SaveEmail(m *types.Email) (err error) {
 
 // GetEmailSubscribeLink returns the unique subscription ID for the specified email address
 // If the email address does not exist in the database yet, it will be created
-// When this function returns "" for subscribeLink, THE EMAIL SHALL NOT BE SENT TO THE USER
+// If the user unsubscribed from emails, returns ErrEmailUnsubscribed
 func GetEmailSubscribeLink(emailTo string) (subscribeLink string, err error) {
 	m := types.Email{
-		Address: emailTo,
+		AddressHash: hashSecret(emailTo),
 	}
 	err = pool.QueryRow(context.Background(),
 		"SELECT subscribe_link, unsubscribed FROM email_list WHERE address = $1",
-		m.Address,
+		m.AddressHash,
 	).Scan(&m.SubscribeLink, &m.Unsubscribed)
 	if err == pgx.ErrNoRows {
 		// need to create a new entry in the database
@@ -278,10 +285,32 @@ func GetEmailSubscribeLink(emailTo string) (subscribeLink string, err error) {
 	}
 
 	if m.Unsubscribed {
-		return "", nil
+		return "", ErrEmailUnsubscribed
 	}
 
 	return m.SubscribeLink, nil
+}
+
+func hashSecret(secret string) string {
+	// bcrypt hashes and salts the secret
+    hashed, err := bcrypt.GenerateFromPassword([]byte(secret), bcrypt.DefaultCost)
+    if err != nil {
+        panic(err)
+    }
+
+	return string(hashed)
+}
+
+func compareSecret(hashed, plain string) bool {
+    err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(plain))
+	if err == bcrypt.ErrMismatchedHashAndPassword {
+		return false
+	} else {
+		log.Printf("Failed to compareSecret: %s", err)
+		return false
+	}
+
+	return true
 }
 
 // from https://stackoverflow.com/a/31832326

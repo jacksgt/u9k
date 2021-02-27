@@ -10,14 +10,13 @@
       <div class="pure-u-1 content is-center">
         {{ if .Email.Unsubscribed }}
         {{/* user is currently unsubscribed, give the option to subscribe again */}}
-        <h3>You are unsubscribe from u9k.de emails</h3>
+        <h3>You are unsubscribed from u9k.de emails</h3>
         <p>
           At the moment, other users are not able to share with you via email. Please click the button below to enable future notifications emails.
         </p>
 
         <form class="pure-form" method="POST">
           <div class="is-center">
-            <input type="email" name="email" class="pure-input-1" required readonly value="{{ .Email.Address }}">
             <input type="text" name="unsubscribe" value="false" hidden>
             <input type="submit" name="submit" class="pure-button pure-button-primary" value="Enable Emails">
           </div>
@@ -35,7 +34,6 @@
 
         <form class="pure-form" method="POST">
           <div class="is-center">
-            <input type="email" name="email" class="pure-input-1" required readonly value="{{ .Email.Address }}">
             <input type="text" name="unsubscribe" value="true" hidden>
             <input type="submit" name="submit" class="pure-button pure-button-primary" value="Disable Emails">
           </div>
