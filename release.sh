@@ -20,5 +20,3 @@ sed -i "s/const Version = \".*\"\$/const Version = \"$version\"/" config/config.
 git add config/config.go
 git commit -m "Release version $version"
 git tag "$version"
-DOCKER_BUILDKIT=1 docker image build --rm -t "jacksgt/u9k:$version" .
-docker image push "jacksgt/u9k:$version"
