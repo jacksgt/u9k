@@ -97,11 +97,15 @@
 
             <div style="display: flex; flex-wrap: wrap; text-align: center;">
               <label for="from_name" style="margin: auto; flex: 1;">From:</label>
-              <input type="text" placeholder="Your name" style="flex: 4; margin: 0;" name="from_name" class="pure-input-1" required>
+              <input type="text" placeholder="Your name" style="flex: 5; margin: 0.2em;" name="from_name" class="pure-input-1" required>
             </div>
             <div style="display: flex; text-align: center;">
               <label for="to_email" style="margin: auto; flex: 1;">To:</label>
-              <input type="email" placeholder="max@example.com" style="flex: 4; margin: 0;" name="to_email" class="pure-input-1" required>
+              <input name="to_email" type="email" placeholder="max@example.com" style="flex: 5; margin: 0.2em;" class="pure-input-1" required>
+            </div>
+            <div style="display: flex; text-align: center;">
+              <label for="message" style="margin: auto; flex: 1;">Message:</label>
+              <input name="message" type="text" placeholder="(optional text)" style="flex: 5; margin: 0.2em;" class="pure-input-1">
             </div>
             <div class="is-center">
               <input type="submit" name="send" class="pure-button pure-button-primary" value="Send">

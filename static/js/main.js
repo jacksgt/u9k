@@ -360,6 +360,11 @@ function fileWidget() {
         // disable default action
         event.preventDefault();
 
+        // indicate to the user that we are doing something
+        // and block the button, just to be sure
+        sendEmailButton.value = "Sending...";
+        sendEmailButton.disabled = true;
+
         // configure a request
         const xhr = new XMLHttpRequest();
         xhr.open('POST', outputForm.outputUrl.value + '/email');
@@ -377,7 +382,6 @@ function fileWidget() {
                 case 200: {
                     sendEmailButton.value = "Done!";
                     sendEmailButton.classList.add('pure-button-ok');
-                    sendEmailButton.disabled = true; // to make sure user does not click multiple times
                     break;
                 }
                 default:

@@ -135,6 +135,7 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 		httpError(w, "Bad Request - missing to_email or from_name field", 400)
 		return
 	}
+	senderMessage := r.PostFormValue("message")
 
 	fileId := chi.URLParam(r, "fileId")
 	file := db.GetFile(fileId)
@@ -163,7 +164,7 @@ func sendFileEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ew, err := render.FileMail(fromName, file, subscribeUrl(subscribeLink))
+	ew, err := render.FileMail(fromName, file, subscribeUrl(subscribeLink), senderMessage)
 	if err != nil {
 		log.Printf("%s", err)
 		return

@@ -143,31 +143,38 @@ func renderMail(m *types.MailContent) (string, error) {
 	return str, nil
 }
 
-func FileMail(fromName string, f *models.File, subscribeUrl string) (*email.Wrapper, error) {
+func FileMail(fromName string, f *models.File, subscribeUrl string, message string) (*email.Wrapper, error) {
 	var err error
 	var ew email.Wrapper
 	ew.Subject = fmt.Sprintf("File %s available for download", f.Name)
 
+	var plainMessageText, htmlMessageText string
+	message = strings.TrimSpace(message)
+	if message != "" {
+		plainMessageText = fmt.Sprintf("\nTheir message for you:\n> %s\n", message)
+		htmlMessageText = fmt.Sprintf(`<br>Their message for you:<br><i>%s</i><br>`, template.HTMLEscapeString(message))
+	}
 	ew.PlainBody = fmt.Sprintf(`
 Hello, %s wants to share a file with you!
 
-%s has uploaded \"%s\" and shared it with you.
+%s has uploaded "%s" and shared it with you.
 The file availability will expire in %s.
+%s
 
 Click the following link to download the file:
 %s
 
------
+--------------
 %s
 
 To unsubscribe from future emails, please visit this link: %s
 `,
-		fromName, fromName, f.Name, f.PrettyExpiresIn(), f.ExportLink(), config.BaseUrl, subscribeUrl)
+		fromName, fromName, f.Name, f.PrettyExpiresIn(), plainMessageText, f.ExportLink(), config.BaseUrl, subscribeUrl)
 
 	ew.HtmlBody, err = renderMail(&types.MailContent{
 		Summary:      fmt.Sprintf("%s wants to share a file with you", fromName),
 		Heading:      fmt.Sprintf("%s wants to share a file with you", fromName),
-		ContentHtml:  template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br><br>Click the following link to download the file:<br>", fromName, f.Name, f.PrettyExpiresIn())),
+		ContentHtml:  template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br>%s<br>Click the following link to download the file:<br>", template.HTMLEscapeString(fromName), template.HTMLEscapeString(f.Name), f.PrettyExpiresIn(), htmlMessageText)),
 		ButtonUrl:    f.ExportLink(),
 		ButtonName:   "Download",
 		SubscribeUrl: subscribeUrl,
