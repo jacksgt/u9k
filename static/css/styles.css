@@ -67,7 +67,7 @@ a {
  * These are some useful classes which I will need
  */
 .l-box {
-    padding: 1em;
+    padding: 0.75em;
 }
 
 .l-box-lrg {
@@ -459,6 +459,7 @@ p/* This is the subheading that appears on the blue section */
     position: fixed;
     bottom: 0;
     width: 100%;
+    font-size: 0.9em;
 }
 
 .footer a {
