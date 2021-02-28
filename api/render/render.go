@@ -152,13 +152,13 @@ func FileMail(fromName string, f *models.File, subscribeUrl string, message stri
 	message = strings.TrimSpace(message)
 	if message != "" {
 		plainMessageText = fmt.Sprintf("\nTheir message for you:\n> %s\n", message)
-		htmlMessageText = fmt.Sprintf(`<br>Their message for you:<br><i>%s</i><br>`, template.HTMLEscapeString(message))
+		htmlMessageText = fmt.Sprintf(`<br>Their message for you:<br><b><i>%s</i></b><br>`, template.HTMLEscapeString(message))
 	}
 	ew.PlainBody = fmt.Sprintf(`
 Hello, %s wants to share a file with you!
 
 %s has uploaded "%s" and shared it with you.
-The file availability will expire in %s.
+The file will be removed in %s.
 %s
 
 Click the following link to download the file:
@@ -174,7 +174,7 @@ To unsubscribe from future emails, please visit this link: %s
 	ew.HtmlBody, err = renderMail(&types.MailContent{
 		Summary:      fmt.Sprintf("%s wants to share a file with you", fromName),
 		Heading:      fmt.Sprintf("%s wants to share a file with you", fromName),
-		ContentHtml:  template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file availability will expire in %s.<br>%s<br>Click the following link to download the file:<br>", template.HTMLEscapeString(fromName), template.HTMLEscapeString(f.Name), f.PrettyExpiresIn(), htmlMessageText)),
+		ContentHtml:  template.HTML(fmt.Sprintf("%s has uploaded \"%s\" and shared it with you.<br>The file will be removed in %s.<br>%s<br>Click the following link to download the file:<br>", template.HTMLEscapeString(fromName), template.HTMLEscapeString(f.Name), f.PrettyExpiresIn(), htmlMessageText)),
 		ButtonUrl:    f.ExportLink(),
 		ButtonName:   "Download",
 		SubscribeUrl: subscribeUrl,
