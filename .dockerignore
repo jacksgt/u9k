@@ -1,3 +1,6 @@
 cockroach-data/
 .git/
 node_modules/
+*.sh
+*.yaml
+*.txt
