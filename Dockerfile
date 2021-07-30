@@ -10,7 +10,7 @@ RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc/passwd.min
 RUN mkdir -p /faketmp
 
 # Only download Go modules (improves build caching)
-COPY go.mod go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy our source code over and build the binary
@@ -31,7 +31,7 @@ COPY --from=builder /etc/nsswitch.conf.min /etc/nsswitch.conf
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd.min /etc/passwd
 # Make sure we have a temp directory in the container (not allowed to create it as non-root)
-COPY --from=builder --chown=nobody /faketmp /tmp
+COPY --from=builder --chown=nobody:0 /faketmp /tmp
 
 USER nobody
 

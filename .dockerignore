@@ -4,3 +4,6 @@ node_modules/
 *.sh
 *.yaml
 *.txt
+infra/
+kubectl-build
+kubectl-buildkit
