@@ -1,4 +1,4 @@
-FROM golang:1.16 AS builder
+FROM docker.io/library/golang:1.17 AS builder
 
 WORKDIR /u9k
 
@@ -35,5 +35,4 @@ COPY --from=builder --chown=nobody:0 /faketmp /tmp
 
 USER nobody
 
-HEALTHCHECK CMD ["/server", "-runHealthCheck"]
 ENTRYPOINT ["/server"]

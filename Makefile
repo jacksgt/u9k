@@ -4,9 +4,13 @@
 server: # server creates the u9k server binary
 	CGO_ENABLED=0 go build ./cmd/server
 
+.PHONY: container
+container:
+	podman image build -t docker.io/jacksgt/u9k:dev .
+
 .PHONY: test
 go-tests: # runs all the tests (requires DB / object store)
-	. ./env.sh && go test ./...
+	. ./auth/dev-env.sh && go test ./...
 
 .PHONY: go-unit-tests
 go-unit-tests:
@@ -18,8 +22,8 @@ js-lint:
 
 .PHONY: dev # runs the development version
 dev:
-	. ./env.sh && go run cmd/server/main.go -reloadTemplates=true
+	. ./auth/dev-env.sh && go run cmd/server/main.go -reloadTemplates=true
 
 .PHONY: debug # runs the development version with delve debugger
 debug:
-	. ./env.sh && dlv debug cmd/server/main.go
+	. ./auth/dev-env.sh && dlv debug cmd/server/main.go

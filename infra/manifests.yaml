@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: u9k
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: u9k
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: u9k
+    spec:
+      containers:
+      - envFrom:
+        - secretRef:
+            name: u9k-config
+        name: u9k
+        image: docker.io/jacksgt/u9k:pgupgrade
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+        resources: {}
+        volumeMounts:
+          - name: "empty"
+            mountPath: "/tmp"
+      volumes:
+        - name: "empty"
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: u9k-svc
+spec:
+  ports:
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: u9k
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: le
+  name: u9k-ingress-5p2q2fos
+spec:
+  rules:
+  - host: u9k.de
+    http:
+      paths:
+      - backend:
+          service:
+            name: u9k-svc
+            port:
+              name: http
+        path: /
+        pathType: Prefix
